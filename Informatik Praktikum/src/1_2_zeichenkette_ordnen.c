@@ -1,10 +1,27 @@
 /*
- Filename  : 1_2_zeichenkette_ordnen.c
- Program   : Sorts user input alphabetically
- Input     : User inputs a string of 6 characters in random order 
- Output    : Pseudo sorts the string alphabetically, and tells how often a character was used. Skips illegal characters.
- Author    : Akram, M. Issmaeel
- Version   : V01 - 06.12.2025
+ Filename   : 1_2_zeichenkette_ordnen.c
+ Program    : Sorts user input alphabetically
+ Input      : User inputs a string of 6 characters in random order 
+ Output     : Pseudo sorts the string alphabetically, and tells how often a character was used. Skips illegal characters.
+ Author     : Akram, M. Issmaeel
+ Version    : V01 - 06.12.2025
+
+ Checklist  : 
+    ✗ - die Zeichenkette k über die Tastatur einlesen und auf zulässige Zeichen prüfen (Falls unzulässige Zeichen vorkommen, ist eine Fehlermeldung auf dem Bildschirm auszugeben.)
+    ✗ - die Länge der Zeichenkette ermitteln
+    ✗ - die in k enthaltenen Zeichen und deren Anzahl ermitteln
+    ✗ - die alphabetisch sortierte Zeichenkette z berechnen
+    ✗ - eine Ausgabe analog zum obigen Beispiel auf dem Bildschirm erzeugen
+
+ Testing    :
+    1. Standardprüfkriterien (siehe Bedingungen für die Durchführung des Praktikums)
+    2. Spezifische Testszenarien: Prüfen Sie Ihr Programm für die folgenden Wertebereiche und Rateversuche:
+    • 5 bis 25 mit folgenden Rateversuchen
+        - 6; 7; 12; 8
+        - 6; 3; 5; 9; 11
+        - 4; 7; 25; 10
+    • 4,39 bis 32,777 mit den oben bereits genannten Rateversuchen
+    • 32 bis 4 mit den oben bereits genannten Rateversuchen
  */
 
 #include <stdio.h>

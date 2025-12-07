@@ -5,6 +5,15 @@
  Output    : Whether user wins/loses, is above or below the value to be guessed and the value itself. 
  Author    : Akram, M. Issmaeel
  Version   : V01 - 06.12.2025
+
+  Checklist : 
+    ✗ - per Zufall eine natürliche Zahl generieren, wobei die Untergrenze und die Obergrenze des Wertebereichs zuvor als natürliche Zahlen von der Tastatur eingelesen werden sollen
+    ✗ - die maximale Anzahl für die Rateversuche berechnen, welche 10% des eingegebenen Wertebereichs betragen soll (aufrunden)
+    ✗ - für jeden Rateversuch eine natürliche Zahl von der Tastatur einlesen (Testzahl) und mit der zu erratenden Zahl vergleichen
+    ✗ - sinnvolle Fehlerbehandlungen ausführen, falls nicht zulässige Zahlenwerte für die Grenzen des Wertebereichs oder die Testzahl eingegeben werden
+    ✗ - ausgeben, ob die Testzahl größer oder kleiner ist als die zu erratende Zahl
+    ✗ - bei Übereinstimmung der Testzahl mit der zu erratenden Zahl das Spiel als gewonnen beenden und die Anzahl der benötigen Rateversuche ausgeben
+    ✗ - bei Erreichen der maximalen Anzahl Rateversuche das Spiel als verloren beenden und die zu erratende Zahl ausgeben
  */
 
 #include <stdio.h>
