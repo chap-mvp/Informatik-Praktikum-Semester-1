@@ -1,10 +1,10 @@
 /*
- Filename   : 1_2_zeichenkette_ordnen.c
- Program    : Sorts user input alphabetically
- Input      : User inputs a string of 6 characters in random order
- Output     : Pseudo sorts the string alphabetically, and tells how often a character was used. Skips illegal characters.
- Author     : Akram, M. Issmaeel
- Version    : V02 - 07.12.2025
+ Filename  : 1_2_zeichenkette_ordnen.c
+ Program   : Sorts user input alphabetically
+ Input     : User inputs a string of 6 characters in random order
+ Output    : Pseudo sorts the string alphabetically, and tells how often a character was used. Skips illegal characters.
+ Author    : Akram, M. Issmaeel
+ Version   : V02 - 07.12.2025
 
  Checklist  :
     ✓ - die Zeichenkette k über die Tastatur einlesen und auf zulässige Zeichen prüfen (Falls unzulässige Zeichen vorkommen, ist eine Fehlermeldung auf dem Bildschirm auszugeben.)

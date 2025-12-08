@@ -6,7 +6,7 @@
  Author    : Akram, M. Issmaeel
  Version   : V01 - 06.12.2025
 
-  Checklist : 
+ Checklist : 
     ✓ - per Zufall eine natürliche Zahl generieren, wobei die Untergrenze und die Obergrenze des Wertebereichs zuvor als natürliche Zahlen von der Tastatur eingelesen werden sollen
     ✓ - die maximale Anzahl für die Rateversuche berechnen, welche 10% des eingegebenen Wertebereichs betragen soll (aufrunden)
     ✓ - für jeden Rateversuch eine natürliche Zahl von der Tastatur einlesen (Testzahl) und mit der zu erratenden Zahl vergleichen
