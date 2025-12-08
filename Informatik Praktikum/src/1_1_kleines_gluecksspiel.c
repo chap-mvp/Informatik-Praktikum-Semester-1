@@ -7,13 +7,13 @@
  Version   : V01 - 06.12.2025
 
   Checklist : 
-    ✗ - per Zufall eine natürliche Zahl generieren, wobei die Untergrenze und die Obergrenze des Wertebereichs zuvor als natürliche Zahlen von der Tastatur eingelesen werden sollen
-    ✗ - die maximale Anzahl für die Rateversuche berechnen, welche 10% des eingegebenen Wertebereichs betragen soll (aufrunden)
-    ✗ - für jeden Rateversuch eine natürliche Zahl von der Tastatur einlesen (Testzahl) und mit der zu erratenden Zahl vergleichen
-    ✗ - sinnvolle Fehlerbehandlungen ausführen, falls nicht zulässige Zahlenwerte für die Grenzen des Wertebereichs oder die Testzahl eingegeben werden
-    ✗ - ausgeben, ob die Testzahl größer oder kleiner ist als die zu erratende Zahl
-    ✗ - bei Übereinstimmung der Testzahl mit der zu erratenden Zahl das Spiel als gewonnen beenden und die Anzahl der benötigen Rateversuche ausgeben
-    ✗ - bei Erreichen der maximalen Anzahl Rateversuche das Spiel als verloren beenden und die zu erratende Zahl ausgeben
+    ✓ - per Zufall eine natürliche Zahl generieren, wobei die Untergrenze und die Obergrenze des Wertebereichs zuvor als natürliche Zahlen von der Tastatur eingelesen werden sollen
+    ✓ - die maximale Anzahl für die Rateversuche berechnen, welche 10% des eingegebenen Wertebereichs betragen soll (aufrunden)
+    ✓ - für jeden Rateversuch eine natürliche Zahl von der Tastatur einlesen (Testzahl) und mit der zu erratenden Zahl vergleichen
+    ✓ - sinnvolle Fehlerbehandlungen ausführen, falls nicht zulässige Zahlenwerte für die Grenzen des Wertebereichs oder die Testzahl eingegeben werden
+    ✓ - ausgeben, ob die Testzahl größer oder kleiner ist als die zu erratende Zahl
+    ✓ - bei Übereinstimmung der Testzahl mit der zu erratenden Zahl das Spiel als gewonnen beenden und die Anzahl der benötigen Rateversuche ausgeben
+    ✓ - bei Erreichen der maximalen Anzahl Rateversuche das Spiel als verloren beenden und die zu erratende Zahl ausgeben
  */
 
 #include <stdio.h>
@@ -25,50 +25,49 @@ int main()
 {
     int min, max;
     printf("What is the range of values you would like to guess? (min, max) - ");
-    scanf("(%d, %d)", &min, &max);                               // MAX and MIN input
+    scanf("(%d, %d)", &min, &max);                               
 
-    float allowedTries = ceil(((float)max - (float)min) * 0.1f); // 10% of range guesses
+    float allowedTries = ceil(((float)max - (float)min) * 0.1f); 
 
     srand(time(NULL));
     int randomNumber;
-    randomNumber = min + rand() % (max - min + 1);              // randomNumber
+    randomNumber = min + rand() % (max - min + 1);              
 
-    int userGuesses = randomNumber + 1;                         // bogus userGuesses value is != randomNumber
+    int userGuesses = randomNumber + 1;
 
-    int guessCount = 0;                                         // counting how many guesses
+    int guessCount = 0;
 
-    if (allowedTries <= 1)                                      // if user has only 1 try
+    if (allowedTries <= 1)
         printf("You have %.0f try!\n", allowedTries);
-    else                                                        // if user has only 1+ tries
+    else
         printf("You have %.0f tries!\n", allowedTries);
 
-    while (guessCount < allowedTries)                           // guess loop
+    while (guessCount < allowedTries)
     {
         printf("\nPlease guess a number! ");                    
-        scanf("%d", &userGuesses);                              // user guess input
-        guessCount++;                                           // increase counter
+        scanf("%d", &userGuesses);
+        guessCount++;
 
-        if (userGuesses < min || userGuesses > max)             // if input != randomNumber
+        if (userGuesses < min || userGuesses > max)
         {
             printf("Out of range input!\n");
             guessCount--;
         }
 
-        // Giving the user hints
         if (userGuesses < randomNumber)
-            printf("The number is smaller!\n");                 // if smaller guess
+            printf("The number is smaller!\n");
         else if (userGuesses > randomNumber)
-            printf("The number is larger!\n");                  // if larger guess
+            printf("The number is larger!\n");
 
         if (userGuesses == randomNumber)
         {
-            if (guessCount == 1)                                // if guess takes 1 try
+            if (guessCount == 1)
                 printf("You guessed correctly in %d try!", guessCount);
-            else                                                // if guess takes more tries
+            else
                 printf("You guessed correctly in %d tries!", guessCount);  
             return 0;
         }
     }
 
-    printf("You didn't guess the number %d!", randomNumber);    // if no correct guess
+    printf("You didn't guess the number %d!", randomNumber);
 }
