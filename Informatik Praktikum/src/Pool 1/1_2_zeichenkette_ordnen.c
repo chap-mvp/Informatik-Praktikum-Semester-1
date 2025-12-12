@@ -18,58 +18,73 @@
 
 int main()
 {
+    // Set the array size
     int userInputStringSize = 50;
     char userInputString[userInputStringSize];
+    // Set a 2D array for allowed letters and their counter
     char allowedLetters[][6] = {{'C', 'D', 'H', 'Q', 'T', 'Y'},
                                 {0, 0, 0, 0, 0, 0}};
 
+    // Ask for input
     printf("Enter your string of letters here: ");
 
+    // so long as user has less inputs than the array allows
     for (int i = 0; i < userInputStringSize; i++)
     {
+        // store values in a variable and end if its a newline character
         char c = getchar();
         if (c == '\n')
             break;
 
+        // if the value is inside the 2D array, increase counter, else print error
         for (int j = 0; j < 6; j++)
         {
-            if (c == allowedLetters[0][j])          // If the letter is allowed
-                allowedLetters[1][j]++;             // Increase its counter
+            if (c == allowedLetters[0][j])
+                allowedLetters[1][j]++;
 
-            if (c != 'C' &&                         // If the letter is NOT allowed
+            if (c != 'C' &&
                 c != 'D' &&
                 c != 'H' &&
                 c != 'Q' &&
                 c != 'T' &&
                 c != 'Y')
             {
-                printf("Wrong Input! Restart!");    // Printf an error and
-                return 0;                           // exit the program
+                printf("Wrong Input! Restart!");
+                return 0;
             }
         }
-        userInputString[i] = c;                     // Assign the input values to an array
+        // Assign the value to an array
+        userInputString[i] = c;
     }
 
-    int newStringSize = 0;                          // Check for the amount of letters
+    // Get the total letters assigned to the array by the sum of the counter
+    int newStringSize = 0;
     for (int i = 0; i < 6; i++)
-        newStringSize += allowedLetters[1][i];      // Get the sum
+        newStringSize += allowedLetters[1][i];
 
-    char sortedUserInput[newStringSize];            // Create a new array with its length as the sum
+    // Create a new array with its length as the sum
+    char sortedUserInput[newStringSize];
+
+    // increase the value inside the loop from outside the loop
     int stringSizeCounter = 0;
 
-    for (int i = 0; i < 6; i++)                     // Print the letters in order as often as they are given
+    // Print the letters in order as often as they are given
+    for (int i = 0; i < 6; i++)
         for (int j = 0; j < allowedLetters[1][i]; j++)
         {
             sortedUserInput[stringSizeCounter] = allowedLetters[0][i];
             stringSizeCounter++;
         }
 
-    for (int i = 0; i < newStringSize; i++)         // Print the sorted array
+    // Print the sorted array
+    for (int i = 0; i < newStringSize; i++)
         printf("%c", sortedUserInput[i]);
 
-    printf("\nYou entered %d characters!\n", newStringSize);    // Print the letter amount
+    // Print the letter amount
+    printf("\nYou entered %d characters!\n", newStringSize);
 
-    for (int i = 0; i < newStringSize; i++)         // Print the letter counts
+    // Print the letter counts, if 0, dont print
+    for (int i = 0; i < newStringSize; i++) 
         if (allowedLetters[1][i] != 0)
         {
             if (i == 0)

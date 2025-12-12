@@ -23,42 +23,52 @@
 
 int main()
 {
+    // Input for largest and smallest values
     int min, max;
     printf("What is the range of values you would like to guess? (min, max) - ");
-    scanf("(%d, %d)", &min, &max);                               
+    scanf("(%d, %d)", &min, &max);      
 
+    // Calculate allowed guess amount
     float allowedTries = ceil(((float)max - (float)min) * 0.1f); 
 
+    // Generate random number
     srand(time(NULL));
     int randomNumber;
     randomNumber = min + rand() % (max - min + 1);              
 
+    // For later comparison issues: random number != userGuesses ONLY for initialization. e.g. without initialization the randomly assigned value could b same as the FIRST randomly generated number, although highly unlikely, it would cause the program to end immediately.
     int userGuesses = randomNumber + 1;
 
+    // Keep track of guesses
     int guessCount = 0;
-
+    // Prints how many guesses the player has
     if (allowedTries <= 1)
         printf("You have %.0f try!\n", allowedTries);
     else
         printf("You have %.0f tries!\n", allowedTries);
 
+    // Start when allowed tries amount has not been reached 
     while (guessCount < allowedTries)
     {
+        // Ask user for guess
         printf("\nPlease guess a number! ");                    
         scanf("%d", &userGuesses);
         guessCount++;
 
+        // Check if guess is in range, if not, reset guess count
         if (userGuesses < min || userGuesses > max)
         {
             printf("Out of range input!\n");
             guessCount--;
         }
 
+        // Tell user if the guess is above or below the random number
         if (userGuesses < randomNumber)
             printf("The number is smaller!\n");
         else if (userGuesses > randomNumber)
             printf("The number is larger!\n");
 
+        // If user guesses the number correctly
         if (userGuesses == randomNumber)
         {
             if (guessCount == 1)
@@ -69,5 +79,6 @@ int main()
         }
     }
 
+    // If the user cannot guess the number, print the random number
     printf("You didn't guess the number %d!", randomNumber);
 }

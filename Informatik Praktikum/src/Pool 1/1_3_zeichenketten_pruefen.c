@@ -18,7 +18,7 @@
 int main()
 {
     // Sizes for both arrays with "buffers"
-    int maxStrand = 100, minStrand = maxStrand;
+    int strandSize = 100;
     // Calculate user input sizes for both strands
     int longStrandSize = 0, smolStrandSize = 0;
     // Where the overlap starts
@@ -26,9 +26,9 @@ int main()
 
     // Long string input and size calculation
     int z_1 = 1;
-    char longStrand[maxStrand];
+    char longStrand[strandSize];
     printf("Enter your long string of letters - ");
-    for (int i = 0; i < maxStrand; i++)
+    for (int i = 0; i < strandSize; i++)
     {
         char c = getchar();
         if (c == '\n')
@@ -37,20 +37,20 @@ int main()
         z_1++;
     }
 
-    for (int i = z_1; i < maxStrand; i++)
+    for (int i = z_1; i < strandSize; i++)
         longStrand[i] = 0;
 
-    for (int i = 0; i < maxStrand; i++)
+    for (int i = 0; i < strandSize; i++)
         if (longStrand[i] != 0)
             longStrandSize++;
         else
             break;
 
-    // Z_2
+    // Smol string input and size calculation
     int z_2 = 1;
-    char smolStrand[minStrand];
+    char smolStrand[strandSize];
     printf("Enter your smol string of letters - ");
-    for (int i = 0; i < minStrand; i++)
+    for (int i = 0; i < strandSize; i++)
     {
         char c = getchar();
         if (c == '\n')
@@ -59,23 +59,25 @@ int main()
         z_2++;
     }
 
-    for (int i = z_2; i < minStrand; i++)
+    for (int i = z_2; i < strandSize; i++)
         smolStrand[i] = 0;
 
-    for (int i = 0; i < minStrand; i++)
+    for (int i = 0; i < strandSize; i++)
         if (smolStrand[i] != 0)
             smolStrandSize++;
         else
             break;
 
-    int smolStrandSizeCheck = 0;
-
+    // Print the lengths of both strings
     printf("\nlong: [%d] \nsmol: [%d]", longStrandSize, smolStrandSize);
+
+    int smolStrandSizeCheck = 0;
 
     for (int i = 0; i < 13; i++)
     {
         for (int j = 0; j < 4; j++)
         {
+            // compare the values in order, if they are the same for the length of the smallstrand size, end the code, else check from the second letter in the long string and so on.
             if (smolStrand[j] == longStrand[i + j])
             {
                 smolStrandSizeCheck++;
@@ -85,8 +87,8 @@ int main()
                 smolStrandSizeCheck = 0;
             if (smolStrandSizeCheck == smolStrandSize)
             {
-                printf("\nITS IN! From the %d. character onwards\n", positionLongStrand + 1);
-                for (int i = 0; i < maxStrand; i++)
+                printf("\nElements match from the %d. character onwards\n", positionLongStrand + 1);
+                for (int i = 0; i < strandSize; i++)
                 {
                     if (longStrand[i] == 0)
                     {
@@ -95,7 +97,7 @@ int main()
                     printf("[%c] ", longStrand[i]);
                 }
                 printf("\n");
-                for (int i = 0; i < minStrand; i++)
+                for (int i = 0; i < strandSize; i++)
                 {
                     if (smolStrand[i] == 0)
                     {
@@ -107,9 +109,5 @@ int main()
             }
         }
     }
-    printf("\nnub");
+    printf("\nThe strands do not fit into eachother!");
 }
-
-// ACCADCAAACDCACCADCAAACDCACCADCAAACDC
-// ACCADCAAACDD
-// ACDC
