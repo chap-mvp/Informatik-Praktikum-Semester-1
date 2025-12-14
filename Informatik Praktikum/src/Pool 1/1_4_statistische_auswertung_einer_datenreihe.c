@@ -33,7 +33,7 @@ int main()
         }
     }
 
-    // Calculate resistor amount
+    // Calculate resistor count
     float resistors = 0;
     for (int i = 0; i < 10; i++)
         if (seriesResistors[i] != 0)
@@ -60,6 +60,7 @@ int main()
             largestResistor = seriesResistors[i];
 
     // Calculate the sum for the standard deviation formula ((x_i - x_[average])^2)
+    // fix variable name
     float sum = 0;
     for (int i = 0; i < resistors; i++)
         sum += pow((float)seriesResistors[i] - (float)meanResistors, 2);
@@ -73,5 +74,5 @@ int main()
         printf("[%.2f] ", seriesResistors[i]);
 
     // Print all the calculated values
-    printf("\nResistor Amount: %.0f\nMean: %.2f\nMax: %.2f\nMin: %.2f\nStandard Deviation: %.2f\n", resistors, meanResistors, smallestResistor, largestResistor, standardDeviation);
+    printf("\nResistor Count: %.0f\nMean: %.2f\nMax: %.2f\nMin: %.2f\nStandard Deviation: %.2f\n", resistors, meanResistors, smallestResistor, largestResistor, standardDeviation);
 }

@@ -73,9 +73,9 @@ int main()
 
     int smolStrandSizeCheck = 0;
 
-    for (int i = 0; i < 13; i++)
+    for (int i = 0; i < longStrandSize; i++)
     {
-        for (int j = 0; j < 4; j++)
+        for (int j = 0; j < smolStrandSize; j++)
         {
             // compare the values in order, if they are the same for the length of the smallstrand size, end the code, else check from the second letter in the long string and so on.
             if (smolStrand[j] == longStrand[i + j])
