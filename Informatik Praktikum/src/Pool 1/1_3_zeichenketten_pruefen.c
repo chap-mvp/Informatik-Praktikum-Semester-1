@@ -20,90 +20,105 @@ int main()
     // Sizes for both arrays with "buffers"
     int strandSize = 100;
     // Calculate user input sizes for both strands
-    int longStrandSize = 0, smolStrandSize = 0;
+    int largeStrandSize = 0, smallStrandSize = 0;
     // Where the overlap starts
-    int positionLongStrand;
+    int positionlargeStrand;
 
-    // Long string input and size calculation
-    int z_1 = 1;
-    char longStrand[strandSize];
-    printf("Enter your long string of letters - ");
+    // large string input and size calculation
+    int z_1 = 0;
+    char largeStrand[strandSize];
+    printf("Enter your large string of letters - ");
     for (int i = 0; i < strandSize; i++)
     {
         char c = getchar();
         if (c == '\n')
             break;
-        longStrand[i] = c;
+        largeStrand[i] = c;
         z_1++;
     }
 
     for (int i = z_1; i < strandSize; i++)
-        longStrand[i] = 0;
+        largeStrand[i] = 0;
 
     for (int i = 0; i < strandSize; i++)
-        if (longStrand[i] != 0)
-            longStrandSize++;
+        if (largeStrand[i] != 0)
+            largeStrandSize++;
         else
             break;
 
-    // Smol string input and size calculation
-    int z_2 = 1;
-    char smolStrand[strandSize];
-    printf("Enter your smol string of letters - ");
+    // small string input and size calculation
+    int z_2 = 0;
+    char smallStrand[strandSize];
+    printf("Enter your small string of letters - ");
     for (int i = 0; i < strandSize; i++)
     {
         char c = getchar();
         if (c == '\n')
+        {
             break;
-        smolStrand[i] = c;
+        }
+        smallStrand[i] = c;
         z_2++;
     }
 
     for (int i = z_2; i < strandSize; i++)
-        smolStrand[i] = 0;
+        smallStrand[i] = 0;
 
     for (int i = 0; i < strandSize; i++)
-        if (smolStrand[i] != 0)
-            smolStrandSize++;
+    {
+        if (smallStrand[i] != 0)
+        {
+            smallStrandSize++;
+        }
         else
+        {
             break;
+        }
+    }
 
     // Print the lengths of both strings
-    printf("\nlong: [%d] \nsmol: [%d]", longStrandSize, smolStrandSize);
+    printf("\nlarge: [%d] \nsmall: [%d]", largeStrandSize, smallStrandSize);
 
-    int smolStrandSizeCheck = 0;
+    int smallStrandSizeCheck = 0;
 
-    for (int i = 0; i < longStrandSize; i++)
+    for (int i = 0; i < largeStrandSize; i++)
     {
-        for (int j = 0; j < smolStrandSize; j++)
+        for (int j = 0; j < smallStrandSize; j++)
         {
-            // compare the values in order, if they are the same for the length of the smallstrand size, end the code, else check from the second letter in the long string and so on.
-            if (smolStrand[j] == longStrand[i + j])
+            // compare the values in order, if they are the same for the length of the smallstrand size, end the code, else check from the second letter in the large string and so on.
+            if (smallStrand[j] == largeStrand[i + j])
             {
-                smolStrandSizeCheck++;
-                positionLongStrand = i;
+                smallStrandSizeCheck++;
+                positionlargeStrand = i;
             }
             else
-                smolStrandSizeCheck = 0;
-            if (smolStrandSizeCheck == smolStrandSize)
+                smallStrandSizeCheck = 0;
+            if (smallStrandSizeCheck == smallStrandSize)
             {
-                printf("\nElements match from the %d. character onwards\n", positionLongStrand + 1);
+                printf("\nElements match from the %d. character onwards\n", positionlargeStrand + 1);
                 for (int i = 0; i < strandSize; i++)
                 {
-                    if (longStrand[i] == 0)
+                    if (largeStrand[i] == 0)
                     {
                         break;
                     }
-                    printf("[%c] ", longStrand[i]);
+                    printf("[%c]", largeStrand[i]);
                 }
+
                 printf("\n");
+
+                for (int i = 0; i < positionlargeStrand; i++)
+                {
+                    printf("   ");
+                }
+
                 for (int i = 0; i < strandSize; i++)
                 {
-                    if (smolStrand[i] == 0)
+                    if (smallStrand[i] == 0)
                     {
                         break;
                     }
-                    printf("[%c] ", smolStrand[i]);
+                    printf("[%c]", smallStrand[i]);
                 }
                 return 0;
             }

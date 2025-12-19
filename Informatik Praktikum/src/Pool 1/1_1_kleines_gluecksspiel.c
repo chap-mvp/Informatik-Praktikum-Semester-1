@@ -20,14 +20,17 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-// 1,1, at least one try, 2) max min reverse, error handling
 int main()
 {
     // Input for largest and smallest values
     int min, max;
-    printf("What is the range of values you would like to guess? (min, max) - ");
+    printf("What is the range of values you would like to guess? Only enter integers in this form: min,max - ");
     // min, max seperately
-    scanf("%d,%d", &min, &max);
+    if (scanf("%d,%d", &min, &max) != 1)
+    {
+        printf("\nInvalid value! breaking...");
+        return 0;
+    }
 
     // Calculate allowed number of guesses
     float allowedTries = ceil(((float)max - (float)min) * 0.1f);
@@ -44,10 +47,13 @@ int main()
     int guessCount = 0;
     // Prints how many guesses the player has
     if (allowedTries <= 1)
+    {
         printf("You have %.0f try!\n", allowedTries); // singular
+    }
     else
+    {
         printf("You have %.0f tries!\n", allowedTries); // plural
-
+    }
     // Start when allowed tries amount has not been reached
     while (guessCount < allowedTries)
     {
@@ -55,12 +61,11 @@ int main()
         printf("\nPlease guess a number! ");
         if (scanf("%d", &usersGuess) != 1)
         {
-            printf("\nInvalid value! breaking..");
-            return (0);
+            printf("\nInvalid value! breaking...");
+            return 0;
         }
         else
             guessCount++;
-
         // Check if guess is in range, if not, decrement guess count
         if (usersGuess < min || usersGuess > max)
         {
@@ -71,17 +76,24 @@ int main()
 
         // Tell user if the guess is above or below the number to be guessed
         if (usersGuess < randomNumber)
-            printf("The number is smaller!\n");
+        {
+            printf("The number you guessed is too small!\n");
+        }
         else if (usersGuess > randomNumber)
-            printf("The number is larger!\n");
-
+        {
+            printf("The number you guessed is too large!\n");
+        }
         // If user guesses the number correctly
         if (usersGuess == randomNumber)
         {
             if (guessCount == 1)
+            {
                 printf("You guessed correctly in %d try!", guessCount);
+            }
             else
+            {
                 printf("You guessed correctly in %d tries!", guessCount);
+            }
             return 0;
         }
     }

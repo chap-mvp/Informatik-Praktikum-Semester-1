@@ -26,7 +26,7 @@ int main()
                                 {0, 0, 0, 0, 0, 0}};
 
     // Ask for input
-    printf("Enter your string of letters here: you are allowed only C, D, H, Q, T, Y\n");
+    printf("Enter your string of letters below, you are allowed only C, D, H, Q, T, Y\nYour String: ");
 
     // so long as user has less inputs than the array allows
     for (int i = 0; i < userInputStringSize; i++)
@@ -38,7 +38,7 @@ int main()
 
         // if the value is inside the 2D array, increase its counter, else print error
         for (int j = 0; j < 6; j++)
-        { 
+        {
             if (c == allowedLetters[0][j])
                 allowedLetters[1][j]++;
 
@@ -60,7 +60,7 @@ int main()
     // Get the total letters assigned to the array by the sum of the counter
     int newStringSize = 0;
     for (int i = 0; i < 6; i++)
-        newStringSize += allowedLetters[1][i]; //as much as user entered
+        newStringSize += allowedLetters[1][i]; // as much as user entered
 
     // Create a new array with its length as the sum
     char sortedUserInput[newStringSize];
@@ -76,6 +76,7 @@ int main()
             stringSizeCounter++;
         }
 
+    printf("Sort String: ");
     // Print the sorted array
     for (int i = 0; i < newStringSize; i++)
         printf("%c", sortedUserInput[i]);
@@ -84,7 +85,7 @@ int main()
     printf("\nYou entered %d characters!\n", newStringSize);
 
     // Print the letter counts, if 0, dont print
-    for (int i = 0; i < newStringSize; i++) 
+    for (int i = 0; i < newStringSize; i++)
         if (allowedLetters[1][i] != 0)
         {
             if (i == 0)
