@@ -26,14 +26,27 @@ int main()
     int min, max;
     printf("What is the range of values you would like to guess? Only enter integers in this form: min,max - ");
     // min, max seperately
-    if (scanf("%d,%d", &min, &max) != 1)
+    // scanf("%d,%d", &min, &max);
+
+    if (scanf("%d,%d", &min, &max) == 0)
     {
         printf("\nInvalid value! breaking...");
         return 0;
     }
 
+    if (max < min)
+    {
+        int temp = max;
+        max = min;
+        min = temp;
+    }
+
     // Calculate allowed number of guesses
     float allowedTries = ceil(((float)max - (float)min) * 0.1f);
+    if (allowedTries == 0)
+    {
+        allowedTries = 1;
+    }
 
     // Generate random number
     srand(time(NULL));
@@ -59,7 +72,7 @@ int main()
     {
         // Ask user for guess
         printf("\nPlease guess a number! ");
-        if (scanf("%d", &usersGuess) != 1)
+        if (scanf("%d", &usersGuess) == 0)
         {
             printf("\nInvalid value! breaking...");
             return 0;
