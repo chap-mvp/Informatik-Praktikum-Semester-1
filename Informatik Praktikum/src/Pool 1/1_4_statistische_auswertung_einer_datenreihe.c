@@ -79,6 +79,7 @@ int main()
     {
         sum += pow((float)seriesResistors[i] - (float)meanResistors, 2);
     }
+    
     // Calculate the standard deviation
     float standardDeviation = sqrt((float)sum / ((float)resistors - 1));
 
@@ -90,5 +91,5 @@ int main()
     }
     
     // Print all the calculated values
-    printf("\nResistor Count: %.0f\nMean: %.2f\nMax: %.2f\nMin: %.2f\nStandard Deviation: %.2f\n", resistors, meanResistors, smallestResistor, largestResistor, standardDeviation);
+    printf("\nResistor Count: %.0f\nMean: %.2f\nMin: %.2f\nMax: %.2f\nStandard Deviation: %.2f\n", resistors, meanResistors, smallestResistor, largestResistor, standardDeviation);
 }

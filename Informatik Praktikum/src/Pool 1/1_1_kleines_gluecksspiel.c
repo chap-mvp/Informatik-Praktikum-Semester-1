@@ -25,10 +25,9 @@ int main()
     // Input for largest and smallest values
     int min, max;
     printf("What is the range of values you would like to guess? Only enter integers in this form: min,max - ");
+    
     // min, max seperately
-    // scanf("%d,%d", &min, &max);
-
-    if (scanf("%d,%d", &min, &max) == 0)
+    if (scanf("%d,%d", &min, &max) != 1)
     {
         printf("\nInvalid value! breaking...");
         return 0;
@@ -84,7 +83,7 @@ int main()
         {
             printf("Out of range input!\n");
             guessCount--;
-            continue;
+            // continue;
         }
 
         // Tell user if the guess is above or below the number to be guessed
@@ -113,4 +112,5 @@ int main()
 
     // If the user cannot guess the number, print the random number
     printf("You couldn't guess the number %d!", randomNumber);
+    return 0;
 }
