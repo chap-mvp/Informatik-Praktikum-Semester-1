@@ -4,32 +4,25 @@
  Input     : User inputs a string of 6 characters in random order
  Output    : Pseudo sorts the string alphabetically, and tells how often a character was used. Skips illegal characters.
  Author    : Akram, M. Issmaeel
- Version   : V02 - 07.12.2025
-
- Checklist  :
-    ✓ - die Zeichenkette k über die Tastatur einlesen und auf zulässige Zeichen prüfen (Falls unzulässige Zeichen vorkommen, ist eine Fehlermeldung auf dem Bildschirm auszugeben.)
-    ✓ - die Länge der Zeichenkette ermitteln
-    ✓ - die in k enthaltenen Zeichen und deren Anzahl ermitteln
-    ✓ - die alphabetisch sortierte Zeichenkette z berechnen
-    ✓ - eine Ausgabe analog zum obigen Beispiel auf dem Bildschirm erzeugen
+ Version   : V03 - 20.12.2025
  */
 
 #include <stdio.h>
+#define MAX_INPUT_SIZE 50
+#define NUM_VALID_CHARS 6
 
 int main()
 {
-    // Set the array size
-    int userInputStringSize = 50;
-    char userInputString[userInputStringSize];
-    // Set a 2D array for allowed letters and their respective counters
-    char allowedLetters[][6] = {{'C', 'D', 'H', 'Q', 'T', 'Y'},
-                                {0, 0, 0, 0, 0, 0}};
+    char userString[MAX_INPUT_SIZE];
 
-    // Ask for input
+    // Set a 2D array for allowed letters and their respective counters
+    char allowedLetters[][NUM_VALID_CHARS] = {{'C', 'D', 'H', 'Q', 'T', 'Y'},
+                                              {0, 0, 0, 0, 0, 0}};
+
     printf("Enter your string of letters below, you are allowed only C, D, H, Q, T, Y\nYour String: ");
 
     // so long as user has less inputs than the array allows
-    for (int i = 0; i < userInputStringSize; i++)
+    for (int i = 0; i < MAX_INPUT_SIZE; i++)
     {
         // store values in a variable and end if its a newline character
         char c = getchar();
@@ -37,11 +30,12 @@ int main()
             break;
 
         // if the value is inside the 2D array, increase its counter, else print error
-        for (int j = 0; j < 6; j++)
+        for (int j = 0; j < NUM_VALID_CHARS; j++)
         {
             if (c == allowedLetters[0][j])
                 allowedLetters[1][j]++;
 
+            // Errorhandling for correct input
             if (c != 'C' &&
                 c != 'D' &&
                 c != 'H' &&
@@ -53,39 +47,35 @@ int main()
                 return 0;
             }
         }
-        // Assign the value to an array
-        userInputString[i] = c;
+        userString[i] = c;
     }
 
     // Get the total letters assigned to the array by the sum of the counter
     int newStringSize = 0;
-    for (int i = 0; i < 6; i++)
-        newStringSize += allowedLetters[1][i]; // as much as user entered
+    for (int i = 0; i < NUM_VALID_CHARS; i++)
+        newStringSize += allowedLetters[1][i];
 
-    // Create a new array with its length as the sum
-    char sortedUserInput[newStringSize];
+    char sortedOutput[newStringSize];
 
-    // increase the value inside the loop from outside the loop
     int stringSizeCounter = 0;
 
     // Print the letters in order as often as they are given
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < NUM_VALID_CHARS; i++)
         for (int j = 0; j < allowedLetters[1][i]; j++)
         {
-            sortedUserInput[stringSizeCounter] = allowedLetters[0][i];
+            sortedOutput[stringSizeCounter] = allowedLetters[0][i];
             stringSizeCounter++;
         }
 
     printf("Sort String: ");
     // Print the sorted array
     for (int i = 0; i < newStringSize; i++)
-        printf("%c", sortedUserInput[i]);
+        printf("%c", sortedOutput[i]);
 
-    // Print the letter amount
     printf("\nYou entered %d characters!\n", newStringSize);
 
     // Print the letter counts, if 0, dont print
-    for (int i = 0; i < newStringSize; i++)
+    for (int i = 0; i < NUM_VALID_CHARS; i++)
         if (allowedLetters[1][i] != 0)
         {
             if (i == 0)
@@ -101,4 +91,5 @@ int main()
             if (i == 5)
                 printf("Y(%d) ", allowedLetters[1][i]);
         }
+    return 0;
 }
