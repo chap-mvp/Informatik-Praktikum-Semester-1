@@ -18,7 +18,7 @@ int main()
     printf("What is the range of values you would like to guess? Only enter integers in this form, press enter to exit - ");
 
     // Errorhandling for correct input
-    if (scanf("%d,%d", &minValue, &maxValue) != 1)
+    if (scanf("%d,%d", &minValue, &maxValue) == 0)
     {
         printf("\nInvalid value! breaking...");
         return 0;

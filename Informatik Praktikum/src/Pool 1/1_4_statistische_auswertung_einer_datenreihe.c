@@ -60,5 +60,5 @@ int main()
 
     (resistors > 1)
         ? (printf("\nResistor Count: %.0f\nMean: %.2f\nMin: %.2f\nMax: %.2f\nStandard Deviation: %.2f\n", resistors, meanResistors, smallestResistor, largestResistor, standardDeviation)) // With standard deviation
-        : (printf("\nResistor Count: %.0f\nMean: %.2f\nMin: %.2f\nMax: %.2f\nStandard Deviation: N.A\n", resistors, meanResistors, smallestResistor, largestResistor)); // Without standard deviation
+        : (printf("\nResistor Count: %.0f\nMean: %.2f\nMin: %.2f\nMax: %.2f\nStandard Deviation: N.A\n", resistors, meanResistors, smallestResistor, largestResistor)); // With standard deviation
 }
