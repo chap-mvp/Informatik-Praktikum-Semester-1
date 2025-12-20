@@ -14,8 +14,7 @@ int main()
 {
     float seriesResistors[100] = {0};
 
-    // Enter the resistor, exit by entering X and pressing "enter"
-    printf("Enter your resistors: ");
+    printf("Enter your resistors, enter X and press enter to exit: ");
     for (int i = 0; i < 100; i++)
     {
         scanf("%f, ", &seriesResistors[i]);
@@ -29,7 +28,7 @@ int main()
         if (seriesResistors[i] != 0)
             resistors++;
 
-    // Calculate sum of resistors (since they are in series)
+    // Calculate sum of resistors
     float resistorsSum = 0;
     for (int i = 0; i < resistors; i++)
         resistorsSum += seriesResistors[i];
@@ -37,33 +36,29 @@ int main()
     // Calculate the mean of the resistors
     float meanResistors = resistorsSum / resistors;
 
-    // Calculate smallest resistor
+    // Find smallest and largest resistor
     float smallestResistor = seriesResistors[0];
-    for (int i = 0; i < resistors; i++)
-        if (seriesResistors[i] < smallestResistor)
-            smallestResistor = seriesResistors[i];
-
-    // Calculate largest resistor
     float largestResistor = seriesResistors[0];
     for (int i = 0; i < resistors; i++)
+    {
+        if (seriesResistors[i] < smallestResistor)
+            smallestResistor = seriesResistors[i];
         if (seriesResistors[i] > largestResistor)
             largestResistor = seriesResistors[i];
+    }
 
-    // Σ(x_i - mean)²
+    // Part of standard deviation: Σ(x_i - mean)²
     float sum = 0;
     for (int i = 0; i < resistors; i++)
         sum += pow((float)seriesResistors[i] - (float)meanResistors, 2);
-
-    // Calculate the standard deviation
+    // Finish standard deviation
     float standardDeviation = sqrt((float)sum / ((float)resistors - 1));
 
-    // Print the Resistor values
     printf("Resistors: ");
     for (int i = 0; i < resistors; i++)
         printf("[%.2f] ", seriesResistors[i]);
 
-    // Print all the calculated values
     (resistors > 1)
-        ? (printf("\nResistor Count: %.0f\nMean: %.2f\nMin: %.2f\nMax: %.2f\nStandard Deviation: %.2f\n", resistors, meanResistors, smallestResistor, largestResistor, standardDeviation))
-        : (printf("\nResistor Count: %.0f\nMean: %.2f\nMin: %.2f\nMax: %.2f\nStandard Deviation: N.A\n", resistors, meanResistors, smallestResistor, largestResistor));
+        ? (printf("\nResistor Count: %.0f\nMean: %.2f\nMin: %.2f\nMax: %.2f\nStandard Deviation: %.2f\n", resistors, meanResistors, smallestResistor, largestResistor, standardDeviation)) // With standard deviation
+        : (printf("\nResistor Count: %.0f\nMean: %.2f\nMin: %.2f\nMax: %.2f\nStandard Deviation: N.A\n", resistors, meanResistors, smallestResistor, largestResistor)); // Without standard deviation
 }

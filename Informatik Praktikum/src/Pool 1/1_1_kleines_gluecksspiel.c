@@ -15,7 +15,7 @@
 int main()
 {
     int minValue, maxValue;
-    printf("What is the range of values you would like to guess? Only enter integers in this form: min,max - ");
+    printf("What is the range of values you would like to guess? Only enter integers in this form, press enter to exit - ");
 
     // Errorhandling for correct input
     if (scanf("%d,%d", &minValue, &maxValue) != 1)
@@ -32,7 +32,7 @@ int main()
         minValue = temp;
     }
 
-    // How many guesses does the player have
+    // Calculate the guesses the player has
     float allowedTries = ceil(((float)maxValue - (float)minValue) * 0.1f);
     if (allowedTries == 0)
     {
@@ -54,6 +54,7 @@ int main()
     else
         printf("You have %.0f tries!\n", allowedTries); // plural
 
+    // as long as the guesses dont go over the allowed amount
     while (guessCount < allowedTries)
     {
         // Ask user for guess
@@ -65,15 +66,18 @@ int main()
             printf("\nInvalid value! breaking...");
             return 0;
         }
+        // If no error, increment guess counter
         else
             guessCount++;
 
+        // If out of bound guess, decrement guess counter
         if (usersGuess < minValue || usersGuess > maxValue)
         {
             printf("Out of range input!\n");
             guessCount--;
         }
 
+        // Tell the user if their guess is smaller or larger
         if (usersGuess < randomNumber)
             printf("The number you guessed is too small!\n");
         else if (usersGuess > randomNumber)
@@ -83,9 +87,9 @@ int main()
         if (usersGuess == randomNumber)
         {
             if (guessCount == 1)
-                printf("You guessed correctly in %d try!", guessCount);
+                printf("You guessed correctly in %d try!", guessCount); // singular
             else
-                printf("You guessed correctly in %d tries!", guessCount);
+                printf("You guessed correctly in %d tries!", guessCount); // plural
             return 0;
         }
     }

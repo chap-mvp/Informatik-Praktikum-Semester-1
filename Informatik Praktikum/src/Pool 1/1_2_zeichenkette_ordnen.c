@@ -19,7 +19,7 @@ int main()
     char allowedLetters[][NUM_VALID_CHARS] = {{'C', 'D', 'H', 'Q', 'T', 'Y'},
                                               {0, 0, 0, 0, 0, 0}};
 
-    printf("Enter your string of letters below, you are allowed only C, D, H, Q, T, Y\nYour String: ");
+    printf("Enter your string of letters below, you are allowed only C, D, H, Q, T, Y\nYour String, press enter to exit: ");
 
     // so long as user has less inputs than the array allows
     for (int i = 0; i < MAX_INPUT_SIZE; i++)
