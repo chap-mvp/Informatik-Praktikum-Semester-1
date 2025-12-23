@@ -1,8 +1,8 @@
 /*
  Filename  : 1_1_kleines_gluecksspiel.c
  Program   : User has to guess a value in a range
- Input     : Minimum and maximum for the interval in which to play, the user guessing the number
- Output    : Whether user wins/loses/is above or below the value to be guessed and the to be guessed value
+ Input     : There are no input parameters which are used in main
+ Output    : The return value is always 0
  Author    : Akram, M. Issmaeel
  Version   : V02 - 20.12.2025
  */
@@ -14,11 +14,11 @@
 
 int main()
 {
-    int minValue, maxValue;
+    int minValue = 0, maxValue = 0;
     printf("What is the range of values you would like to guess? Only enter integers in this form, press enter to exit - ");
 
     // Errorhandling for correct input
-    if (scanf("%d,%d", &minValue, &maxValue) == 0)
+    if (scanf("%d,%d", &minValue, &maxValue) != 2)
     {
         printf("\nInvalid value! breaking...");
         return 0;
@@ -40,7 +40,7 @@ int main()
     }
 
     srand(time(NULL));
-    int randomNumber;
+    int randomNumber = 0;
     randomNumber = minValue + rand() % (maxValue - minValue + 1);
 
     // Initialize to invalid value to ensure first comparison works
