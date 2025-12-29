@@ -1,8 +1,8 @@
 /*
  Filename  : 1_3_zeichenketten_pruefen.c
  Program   : Checks whether one string is inside the other
- Input     : Both strings for checking
- Output    : Which string is inside which
+ Input     : There are no input parameters which are used in main
+ Output    : The return value is always 0
  Author    : Akram, M. Issmaeel
  Version   : V02 - 20.12.2025
  */

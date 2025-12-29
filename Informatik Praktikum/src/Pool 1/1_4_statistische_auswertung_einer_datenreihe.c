@@ -1,8 +1,8 @@
 /*
  Filename  : 1_4_statistische_auswertung_einer_datenreihe.c
  Program   : Calculates important values for resistors in series
- Input     : All resistor values
- Output    : Resistors with respective values, mean, max, min, standard deviation and resistor amount
+ Input     : There are no input parameters which are used in main
+ Output    : There are no return values
  Author    : Akram, M. Issmaeel
  Version   : V02 - 20.12.2025
  */

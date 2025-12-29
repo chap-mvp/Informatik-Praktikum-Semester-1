@@ -1,8 +1,8 @@
 /*
  Filename  : 1_2_zeichenkette_ordnen.c
  Program   : Sorts user input alphabetically
- Input     : User inputs a string of 6 characters in random order
- Output    : Pseudo sorts the string alphabetically, and tells how often a character was used. Skips illegal characters.
+ Input     : There are no input parameters which are used in main
+ Output    : The return value is always 0
  Author    : Akram, M. Issmaeel
  Version   : V03 - 20.12.2025
  */
