@@ -19,8 +19,11 @@ Bei der Benutzeranmeldung müssen:
  - eine Mitteilung über den erfolglosen Anmeldeversuch ausgegeben werden, falls die Benutzeranmeldung fehlerhaft war.
 
  - Es sind maximal drei erfolglose Anmeldeversuche erlaubt. Bei Überschreiten dieser Maximalzahl soll der Nutzer für einen erneuten Anmeldeversuch für die Dauer von zwei Minuten gesperrt werden.
+
  - Zur Passwortänderung muss zunächst das gespeicherte Passwort korrekt und dann das neue Passwort mit korrekter Wiederholung eingegeben werden.
+
  - Bei jeder Passworteingabe soll jedes zum Passwort gehörende Zeichen während der Eingabe im Klartext auf dem Bildschirm dargestellt und beim Abschluss der Eingabe durch einen Stern (*) überschrieben werden.
+ 
  - Bei fehlerhaften Eingaben sollen aussagekräftige Fehlermeldungen auf dem Bildschirm ausgegeben werden. Der fehlerhafte Vorgang soll zurückgesetzt werden.
 
 Vorgaben zum Lösungsweg
