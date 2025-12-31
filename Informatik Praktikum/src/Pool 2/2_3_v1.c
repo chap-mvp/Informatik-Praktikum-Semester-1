@@ -39,6 +39,26 @@ typedef struct userData
     char password[14];
 } info;
 
+struct userData delete_user()
+{
+    char delete_username[9] = 0;
+    char delete_password[14] = 0;
+    printf("Enter the your username you would like to delete: ");
+    for (int i = 0; i < 9; i++)
+    {
+        char c = getchar();
+        if (c == '\n')
+            break;
+        delete_username[i] = c;
+    }
+
+    
+
+    for (int i = 0; i < 9; i++) {
+        
+    }
+}
+
 struct userData users[USER_STORAGE];
 
 struct userData password_fill(struct userData *username)
