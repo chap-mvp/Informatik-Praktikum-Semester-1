@@ -5,7 +5,7 @@
 #include <time.h>
 
 // GLOBAL VARIABLES
-#define MAX_USERNAMES 3
+#define MAX_USERNAMES 5
 #define USERNAME_SIZE 9
 #define PASSWORD_SIZE 14
 #define LOCK_OUT_TIME 5
@@ -23,46 +23,33 @@ typedef struct userBase
 user array[MAX_USERNAMES];
 
 // FUNCTIONS
+void empty_array();
 
-// Empties the array every time the program starts
-void empty_username_array();
+int check_task();
 
-// Asks user which task to perform before each iteration
-int check_for_task();
-
-// Calls the function to create a username with password
-int user_creator_caller(int *accounts);
-// Creates a username with password
-int struct_creator(int user_count);
-
-// Checks for validity of user data which needs to be deleted
-int deletion_function(int *accounts);
-// Checks for validity of user data which needs to be changed
-int edit_function();
-
-// Used in deletion and editing to determine existence of a user
-int search_username_function();
-// Called by search_username_function() to check for correct password
-int compare_password_function(int index, int attempts);
-
-// Prints the usernames everytime the program does a task
-int print_values(int a);
-// Puts the tagged users into a timer
-int time_locker(int index);
-
-// Checks whether user exists
+int user_creator(int user_count);
+void username_creator(int user_count);
+void password_creator(int user_count);
+int delete_user(int *accounts);
+int edit_user();
 int login();
+
+int compare_username();
+int compare_password(int index, int attempts);
+
+int print_values(int a);
+int time_locker(int index);
 
 int main()
 {
-    empty_username_array();
+    empty_array();
     int accounts = 0;
 
     while (1)
     {
         print_values(accounts);
 
-        int task_number = check_for_task();
+        int task_number = check_task();
 
         if ((task_number == 1) && (accounts < MAX_USERNAMES)) // Create a new user
         {
@@ -71,15 +58,15 @@ int main()
         }
         else if ((task_number == 1) && (!accounts < MAX_USERNAMES))
         {
-            printf("User limit has been reached\n");
+            printf("Account limit has been reached\n");
         }
         if (task_number == 2) // Delete a user
         {
-            deletion_function(&accounts);
+            delete_user(&accounts);
         }
         if (task_number == 3) // Edit a user
         {
-            edit_function();
+            edit_user();
         }
         if (task_number == 4) // Log into the program
         {
@@ -87,17 +74,14 @@ int main()
         }
         if (task_number == 5) // Exit the program
         {
-            for (int i = 0; i < MAX_USERNAMES; i++)
-            {
-                printf("User %d: %s\n", i + 1, array[i].username);
-            }
+            print_values(accounts);
             printf("You have exited the terminal\nExiting...");
             return 0;
         }
     }
 }
 
-int check_for_task()
+int check_task()
 {
     int task;
     printf("[ 1 - New user    ]\n"
@@ -112,7 +96,7 @@ int check_for_task()
     return task;
 }
 
-void user_creator(int user_count)
+void username_creator(int user_count)
 {
     // Create a username
     printf("Enter a new username: ");
@@ -129,13 +113,16 @@ void user_creator(int user_count)
     if (i < 6)
     {
         printf("The username is too small!\n");
-        user_creator(user_count);
+        username_creator(user_count);
+        return;
     }
 
     if ((array[user_count].username[0] < 'A') || (array[user_count].username[0] > 'Z'))
     {
         printf("The first letter has to be CAPITAL!\n");
-        user_creator(user_count);
+        while (getchar() != '\n')
+            ;
+        username_creator(user_count);
         return;
     }
     for (i = 1; array[user_count].username[i] != '\0' && i < USERNAME_SIZE - 1; i++)
@@ -145,12 +132,15 @@ void user_creator(int user_count)
         if (((c < 'a') || (c > 'z')) && ((c < '0') || (c > '9')))
         {
             printf("All characters except the first have to be small or numbers!\n");
-            user_creator(user_count);
+            // while (getchar() != '\n')
+            //     ;
+            username_creator(user_count);
+            return;
         }
     }
 }
 
-void pass_creator(int user_count)
+void password_creator(int user_count)
 {
     // Create a password
     printf("Enter a new password: ");
@@ -167,38 +157,42 @@ void pass_creator(int user_count)
     if (i < 8)
     {
         printf("The password is too small!\n");
-        user_creator(user_count);
+        return password_creator(user_count);
     }
 
     bool capital_letter = false;
     bool small_letter = false;
     bool number = false;
-    for (i = 1; array[user_count].password[i] != '\0' && i < PASSWORD_SIZE - 1; i++)
+    for (i = 0; array[user_count].password[i] != '\0' && i < PASSWORD_SIZE - 1; i++)
     {
         char c;
         c = array[user_count].password[i];
-        if ((c < 'A') && (c > 'Z'))
+        if ((c >= 'A') && (c <= 'Z'))
             capital_letter = true;
-        if ((c < 'a') && (c > 'z'))
+        if ((c >= 'a') && (c <= 'z'))
             small_letter = true;
-        if ((c < '0') && (c > '9'))
+        if ((c >= '0') && (c <= '9'))
             number = true;
     }
     if (!((capital_letter == true) && (small_letter == true) && (number == true)))
+    {
         printf("You need at least one capital letter, one small letter and one number!\n");
-        pass_creator(user_count);
+        return password_creator(user_count);
+    }
 }
 
-int struct_creator(int user_count)
+int user_creator(int user_count)
 {
     array[user_count].isFree = false;
     array[user_count].isLocked = false;
 
-    user_creator(user_count);
-    pass_creator(user_count);
+    username_creator(user_count);
+    password_creator(user_count);
+
+    return 0;
 }
 
-int search_username_function()
+int compare_username()
 {
     char temp_username[USERNAME_SIZE];
     printf("Enter your username: ");
@@ -241,7 +235,7 @@ int search_username_function()
 }
 
 // compare pwd
-int compare_password_function(int index, int attempts)
+int compare_password(int index, int attempts)
 {
     if (attempts >= 3)
     {
@@ -287,19 +281,19 @@ int compare_password_function(int index, int attempts)
     if (match)
         return index;
 
-    return compare_password_function(index, attempts + 1);
+    return compare_password(index, attempts + 1);
 }
 
-int deletion_function(int *accounts)
+int delete_user(int *accounts)
 {
-    int user_index = search_username_function();
+    int user_index = compare_username();
     if (user_index == -1)
     {
         printf("User not found!\n");
         return 0;
     }
 
-    int pass_index = compare_password_function(user_index, 0);
+    int pass_index = compare_password(user_index, 0);
 
     while (user_index != pass_index)
     {
@@ -319,9 +313,9 @@ int deletion_function(int *accounts)
     return 1;
 }
 
-int edit_function()
+int edit_user()
 {
-    int username_index = search_username_function();
+    int username_index = compare_username();
 
     if (username_index == -1)
     {
@@ -329,7 +323,7 @@ int edit_function()
         return 0;
     }
 
-    int password_index = compare_password_function(username_index, 0);
+    int password_index = compare_password(username_index, 0);
 
     if (password_index == -1)
     {
@@ -338,7 +332,7 @@ int edit_function()
     }
 
     printf("Enter your new username and password below:\n");
-    struct_creator(username_index);
+    user_creator(username_index);
 }
 
 int print_values(int a)
@@ -360,13 +354,13 @@ int user_creator_caller(int *accounts)
     for (int i = 0; i < MAX_USERNAMES; i++)
         if (array[i].isFree == true)
         {
-            struct_creator(i);
+            user_creator(i);
             break;
         }
     (*accounts)++;
 }
 
-void empty_username_array()
+void empty_array()
 {
     for (int i = 0; i < MAX_USERNAMES; i++)
     {
@@ -397,8 +391,13 @@ int time_locker(int index)
 
 int login()
 {
-    int a = search_username_function();
-    int b = compare_password_function(a, 0);
+    int a = compare_username();
+    if (a == -1)
+    {
+        printf("User not found!\n");
+        return 0;
+    }
+    int b = compare_password(a, 0);
     if (a == b)
         printf("The user you entered exists!\n");
     else
