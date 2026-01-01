@@ -22,7 +22,8 @@ Bei der Benutzeranmeldung müssen:
 
  - Zur Passwortänderung muss zunächst das gespeicherte Passwort korrekt und dann das neue Passwort mit korrekter Wiederholung eingegeben werden.
 
-w 
+ - Bei jeder Passworteingabe soll jedes zum Passwort gehörende Zeichen während der Eingabe im Klartext auf dem Bildschirm dargestellt und beim Abschluss der Eingabe durch einen Stern (*) überschrieben werden.
+ 
  - Bei fehlerhaften Eingaben sollen aussagekräftige Fehlermeldungen auf dem Bildschirm ausgegeben werden. Der fehlerhafte Vorgang soll zurückgesetzt werden.
 
 Vorgaben zum Lösungsweg

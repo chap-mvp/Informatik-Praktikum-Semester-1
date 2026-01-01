@@ -33,7 +33,7 @@ int check_for_task();
 // Calls the function to create a username with password
 int user_creator_caller(int *accounts);
 // Creates a username with password
-int user_creator(int user_count);
+int struct_creator(int user_count);
 
 // Checks for validity of user data which needs to be deleted
 int deletion_function(int *accounts);
@@ -76,7 +76,6 @@ int main()
         if (task_number == 2) // Delete a user
         {
             deletion_function(&accounts);
-            accounts--;
         }
         if (task_number == 3) // Edit a user
         {
@@ -113,11 +112,8 @@ int check_for_task()
     return task;
 }
 
-int user_creator(int user_count)
+void user_creator(int user_count)
 {
-    array[user_count].isFree = false;
-    array[user_count].isLocked = false;
-
     // Create a username
     printf("Enter a new username: ");
     int i;
@@ -130,8 +126,35 @@ int user_creator(int user_count)
     }
     array[user_count].username[i] = '\0';
 
+    if (i < 6)
+    {
+        printf("The username is too small!\n");
+        user_creator(user_count);
+    }
+
+    if ((array[user_count].username[0] < 'A') || (array[user_count].username[0] > 'Z'))
+    {
+        printf("The first letter has to be CAPITAL!\n");
+        user_creator(user_count);
+        return;
+    }
+    for (i = 1; array[user_count].username[i] != '\0' && i < USERNAME_SIZE - 1; i++)
+    {
+        char c;
+        c = array[user_count].username[i];
+        if (((c < 'a') || (c > 'z')) && ((c < '0') || (c > '9')))
+        {
+            printf("All characters except the first have to be small or numbers!\n");
+            user_creator(user_count);
+        }
+    }
+}
+
+void pass_creator(int user_count)
+{
     // Create a password
     printf("Enter a new password: ");
+    int i;
     for (i = 0; i < PASSWORD_SIZE - 1; i++)
     {
         char c = getchar();
@@ -140,6 +163,39 @@ int user_creator(int user_count)
         array[user_count].password[i] = c;
     }
     array[user_count].password[i] = '\0';
+
+    if (i < 8)
+    {
+        printf("The password is too small!\n");
+        user_creator(user_count);
+    }
+
+    bool capital_letter = false;
+    bool small_letter = false;
+    bool number = false;
+    for (i = 1; array[user_count].password[i] != '\0' && i < PASSWORD_SIZE - 1; i++)
+    {
+        char c;
+        c = array[user_count].password[i];
+        if ((c < 'A') && (c > 'Z'))
+            capital_letter = true;
+        if ((c < 'a') && (c > 'z'))
+            small_letter = true;
+        if ((c < '0') && (c > '9'))
+            number = true;
+    }
+    if (!((capital_letter == true) && (small_letter == true) && (number == true)))
+        printf("You need at least one capital letter, one small letter and one number!\n");
+        pass_creator(user_count);
+}
+
+int struct_creator(int user_count)
+{
+    array[user_count].isFree = false;
+    array[user_count].isLocked = false;
+
+    user_creator(user_count);
+    pass_creator(user_count);
 }
 
 int search_username_function()
@@ -209,8 +265,6 @@ int compare_password_function(int index, int attempts)
         temp_password[i] = c;
     }
     temp_password[i] = '\0';
-
-   
 
     for (int j = 0; j < i; j++)
     {                  // j is size of password, you just go back and overwrite on screen
@@ -284,7 +338,7 @@ int edit_function()
     }
 
     printf("Enter your new username and password below:\n");
-    user_creator(username_index);
+    struct_creator(username_index);
 }
 
 int print_values(int a)
@@ -306,7 +360,7 @@ int user_creator_caller(int *accounts)
     for (int i = 0; i < MAX_USERNAMES; i++)
         if (array[i].isFree == true)
         {
-            user_creator(i);
+            struct_creator(i);
             break;
         }
     (*accounts)++;
