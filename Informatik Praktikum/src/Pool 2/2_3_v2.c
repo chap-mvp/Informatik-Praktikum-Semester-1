@@ -8,6 +8,7 @@
 #define MAX_USERNAMES 3
 #define USERNAME_SIZE 9
 #define PASSWORD_SIZE 14
+#define LOCK_OUT_TIME 5
 
 // GLOBAL STRUCTS
 typedef struct userBase
@@ -42,9 +43,7 @@ int edit_function();
 // Used in deletion and editing to determine existence of a user
 int search_username_function();
 // Called by search_username_function() to check for correct password
-int compare_password_function(int index);
-// Does the double checking of password for each task except creation
-int password_check(int index);
+int compare_password_function(int index, int attempts);
 
 // Prints the usernames everytime the program does a task
 int print_values(int a);
@@ -72,7 +71,7 @@ int main()
         }
         else if ((task_number == 1) && (!accounts < MAX_USERNAMES))
         {
-            printf("New users can not be entered!\n");
+            printf("User limit has been reached\n");
         }
         if (task_number == 2) // Delete a user
         {
@@ -106,7 +105,7 @@ int check_for_task()
            "[ 2 - Delete user ]\n"
            "[ 3 - Edit user   ]\n"
            "[ 4 - Check login ]\n"
-           "[ 5 - exit        ]\n"
+           "[ 5 - Exit        ]\n"
            "[ Enter here  -  ");
     scanf("%d", &task);
     while (getchar() != '\n')
@@ -186,10 +185,21 @@ int search_username_function()
 }
 
 // compare pwd
-int compare_password_function(int index)
+int compare_password_function(int index, int attempts)
 {
+    if (attempts >= 3)
+    {
+        printf("Too many wrong tries, you are now locked for 2 minutes!\n");
+        time_locker(index);
+        return -1;
+    }
+
+    if (array[index].isFree)
+        return -1;
+
     char temp_password[PASSWORD_SIZE];
     printf("Enter your password: ");
+
     int i;
     for (i = 0; i < PASSWORD_SIZE - 1; i++)
     {
@@ -200,29 +210,30 @@ int compare_password_function(int index)
     }
     temp_password[i] = '\0';
 
-    for (i = index; i < index + 1; i++)
-    {
-        if (array[i].isFree == false)
-        {
-            int comparison = 1;
-            int j;
-            for (j = 0; j < PASSWORD_SIZE - 1; j++)
-            {
-                if (array[i].password[j] != temp_password[j])
-                {
-                    comparison = 0;
-                    break;
-                }
-                if (temp_password[j] == '\0')
-                    return i;
-            }
-            if (comparison == 1)
-            {
-                return password_check(i) == 1 ? i : -1;
-            }
-        }
+   
+
+    for (int j = 0; j < i; j++)
+    {                  // j is size of password, you just go back and overwrite on screen
+        putchar('\b'); // move back
+        putchar('*');  // overwrite
     }
-    return -1;
+
+    int match = 1;
+
+    for (i = 0; i < PASSWORD_SIZE - 1; i++)
+    {
+        if (array[index].password[i] != temp_password[i])
+        {
+            match = 0;
+            break;
+        }
+        if (temp_password[i] == '\0')
+            break;
+    }
+    if (match)
+        return index;
+
+    return compare_password_function(index, attempts + 1);
 }
 
 int deletion_function(int *accounts)
@@ -234,7 +245,7 @@ int deletion_function(int *accounts)
         return 0;
     }
 
-    int pass_index = password_check(user_index);
+    int pass_index = compare_password_function(user_index, 0);
 
     while (user_index != pass_index)
     {
@@ -250,7 +261,7 @@ int deletion_function(int *accounts)
     for (int j = 0; j < PASSWORD_SIZE; j++)
         array[user_index].password[j] = 0;
     (*accounts)--;
-     printf("The user has been deleted.\n");
+    printf("The user has been deleted.\n");
     return 1;
 }
 
@@ -264,7 +275,7 @@ int edit_function()
         return 0;
     }
 
-    int password_index = compare_password_function(username_index);
+    int password_index = compare_password_function(username_index, 0);
 
     if (password_index == -1)
     {
@@ -288,43 +299,6 @@ int print_values(int a)
             printf("User %d: %s\n", i + 1, array[i].username);
 
     printf("------------------------------------\n");
-}
-
-int password_check(int index)
-{
-    char temp_password[PASSWORD_SIZE];
-    printf("Enter your password again: ");
-    int i;
-    for (i = 0; i < PASSWORD_SIZE - 1; i++)
-    {
-        char c = getchar();
-        if (c == '\n')
-            break;
-        temp_password[i] = c;
-    }
-    temp_password[i] = '\0';
-
-    for (i = index; i < index + 1; i++)
-    {
-        int comparison = 1;
-        int j;
-        for (j = 0; j < PASSWORD_SIZE - 1; j++)
-        {
-            if (array[i].password[j] != temp_password[j])
-            {
-                comparison = 0;
-                break;
-            }
-            if (temp_password[j] == '\0')
-                return i;
-        }
-
-        if (comparison == 1)
-        {
-            return 1;
-        }
-    }
-    return -1;
 }
 
 int user_creator_caller(int *accounts)
@@ -356,7 +330,7 @@ int time_locker(int index)
     array[index].isLocked = true;
 
     time_t start = time(NULL);
-    time_t end = start + 120;
+    time_t end = start + LOCK_OUT_TIME;
     while (time(NULL) < end)
     {
         // Wait
@@ -370,7 +344,7 @@ int time_locker(int index)
 int login()
 {
     int a = search_username_function();
-    int b = compare_password_function(a);
+    int b = compare_password_function(a, 0);
     if (a == b)
         printf("The user you entered exists!\n");
     else
