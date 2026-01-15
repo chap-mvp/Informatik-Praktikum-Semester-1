@@ -1,8 +1,8 @@
 /*
  Filename  : 2_1_iban_berechnen.c
  Program   : Validates and generates German IBANs using BLZ and account numbers
- Input     : User selects task (1-3), provides BLZ/account or full IBAN, reads branches.txt and BLZ.txt
- Output    : Formatted IBAN with country code, check digits, BLZ, and account number; validation results
+ Input     : There are no input parameters which are used in main
+ Output    : The return value is always 0
  Author    : Akram, M. Issmaeel
  Version   : V01 - 06.01.2026
  */

@@ -1,8 +1,8 @@
 /*
  Filename  : 2_2_parkscheinautomat_simulieren.c
  Program   : Parking meter simulator with time-based fee calculation and payment processing
- Input     : Opening/closing hours, currency denominations for payment
- Output    : Entry/exit times, parking duration, fees, change breakdown, receipt
+ Input     : There are no input parameters which are used in main
+ Output    : The return value is always 0
  Author    : Akram, M. Issmaeel
  Version   : V01 - 06.01.2026
  */
@@ -27,6 +27,8 @@ int return_money[5];
 
 // Input: None, prompts user for currency denominations
 // Output: Returns total sum of all denominations entered
+// Prompts the user for counts of euro notes/coins, stores them globally, and returns the total paid amount
+
 float get_money_sum()
 {
     float sum = 0.0f;
@@ -72,6 +74,7 @@ float get_money_sum()
 
 // Input: seconds - total seconds, h/m/s - pointers to store converted values
 // Output: Converts total seconds into hours, minutes, seconds components via pointers
+// Converts a total number of seconds into hours, minutes, and seconds via pointer arguments
 void seconds_to_hms(int seconds, int *h, int *m, int *s)
 {
     *h = seconds / 3600;
@@ -81,6 +84,7 @@ void seconds_to_hms(int seconds, int *h, int *m, int *s)
 
 // Input: time_spent_seconds - parking duration in seconds
 // Output: Returns parking cost based on tiered pricing (first 10 min free, then 1.60€/1.40€/1.00€ per hour)
+// Calculates the parking fee from a parking duration using the defined tiered pricing rules
 float calculate_cost(int time_spent_seconds)
 {
     int minutes = time_spent_seconds / 60;
@@ -111,6 +115,7 @@ float calculate_cost(int time_spent_seconds)
 
 // Input: change - amount of change to return in euros
 // Output: Prints change breakdown using largest denominations first (greedy algorithm)
+// Decomposes a change amount into euro coin denominations and prints the breakdown
 void change_extractor(float change)
 {
     // Convert to cents to avoid floating point precision issues
@@ -150,6 +155,7 @@ void change_extractor(float change)
 
 // Input: Opening/closing hours from user, system time for entry
 // Output: Simulates parking session with entry/exit times, calculates fees, processes payment, prints receipt
+// Controls the full parking meter simulation including time validation, fee calculation, payment, and receipt output 
 int main()
 {
     // Get current system time

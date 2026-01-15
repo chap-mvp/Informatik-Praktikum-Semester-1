@@ -1,10 +1,11 @@
 /*
  Filename  : login.c
  Program   : User account management system with creation, deletion, editing, and login authentication
- Input     : User menu selections (1-5), usernames (6-9 chars), passwords (8-14 chars with requirements)
- Output    : Account operations feedback, login status, lockout warnings, user list display
+ Input     : There are no input parameters which are used in main
+ Output    : The return value is always 0
  Author    : Akram, M. Issmaeel
- Version   : V01 - 06.01.2026
+ Version   : V02 - 13.01.2026
+ ChangeLog : user account_storage[] shifted from global into main, comments added on all function about their purpose, password lock logic changed to time comparison instead of locking he whole program, changed function names to be clearer and variables name to be more consistent among functions
  */
 
 // LIBRARIES
@@ -16,61 +17,64 @@
 
 // GLOBAL VARIABLES
 #define MAX_USERNAMES 121
-#define USERNAME_SIZE 10
-#define PASSWORD_SIZE 15
-#define LOCK_OUT_TIME 5
+#define USERNAME_SIZE 9 + 1
+#define PASSWORD_SIZE 14 + 1
+#define LOCK_OUT_TIME 120
 
 // GLOBAL STRUCTS
 typedef struct userBase
 {
     bool isFree;
-    bool isLocked;
+    time_t isLocked;
     char username[USERNAME_SIZE];
     char password[PASSWORD_SIZE];
 } user;
 
-// GLOBAL ARRAYS
-user array[MAX_USERNAMES];
-
 // FUNCTION DECLARATIONS
-void empty_array();
-int check_task();
-int user_creator(int user_count, int *accounts);
-void username_creator(int user_count);
-int password_creator(int user_count);
-int delete_user(int *accounts);
-int edit_user(int *accounts);
-int login();
-int compare_username();
-int compare_password(int index, int attempts);
-int print_values(int a);
-int time_locker(int index);
+void clear_user_account_storage(user *account_storage);
+int task_selection_menu();
+
+int validate_username(user *account_storage, int index);
+int validate_password(user *account_storage, int index);
+int create_user_account(user *account_storage, int index, int *accounts);
+
+int verify_username(user *account_storage);
+int verify_password(user *account_storage, int index, int attempts);
+int account_locker(user *account_storage, int index);
+
+int delete_user_account(user *account_storage, int *accounts);
+int update_user_credentials(user *account_storage, int *accounts);
+int authenticate_user(user *account_storage);
+
+int display_registered_users(user *account_storage, int accounts);
 
 // Input: None
 // Output: Runs main menu loop, manages account operations until exit
 int main()
 {
-    empty_array();
+    user account_storage[MAX_USERNAMES];
+    clear_user_account_storage(account_storage);
     int accounts = 0; // Tracks total number of active accounts
 
     while (1)
     {
-        print_values(accounts);
+        time_t current_time = time(NULL);
+        display_registered_users(account_storage, accounts);
 
-        int task_number = check_task();
+        int task_number = task_selection_menu();
 
         // Create new user if slots available
-        if ((task_number == 1) && (accounts < MAX_USERNAMES))
+        if ((task_number == 1) && (accounts < MAX_USERNAMES - 1))
         {
-            printf("[ %d Accounts left ]\n", MAX_USERNAMES - accounts - 1);
-            
+            printf("[ %d Accounts left ]\n", MAX_USERNAMES - 1 - accounts);
+
             // Find first free slot
             for (int i = 0; i < MAX_USERNAMES; i++)
             {
-                if (array[i].isFree == true)
+                if (account_storage[i].isFree == true)
                 {
                     // Increment counter only on successful creation
-                    if (user_creator(i, &accounts) == 1)
+                    if (create_user_account(account_storage, i, &accounts) == 1)
                     {
                         accounts++;
                     }
@@ -78,34 +82,55 @@ int main()
                 }
             }
         }
-        else if ((task_number == 1) && (accounts >= MAX_USERNAMES))
+        else if ((task_number == 1) && (accounts == MAX_USERNAMES - 1))
         {
             printf("Account limit has been reached\n");
         }
         if (task_number == 2)
         {
-            delete_user(&accounts);
+            delete_user_account(account_storage, &accounts);
         }
         if (task_number == 3)
         {
-            edit_user(&accounts);
+            update_user_credentials(account_storage, &accounts);
         }
         if (task_number == 4)
         {
-            login();
+            authenticate_user(account_storage);
         }
         if (task_number == 5)
         {
-            print_values(accounts);
-            printf("You have exited the terminal\nExiting...");
+            display_registered_users(account_storage, accounts);
+            printf("You have exited the terminal\nExiting...\n");
             return 0;
         }
     }
 }
 
+// Input: account_storage
+// Output: Initializes all user slots to empty state with cleared data
+// Initializes the user account_storage by marking all slots free, unlocked, and clearing credentials
+void clear_user_account_storage(user *account_storage)
+{
+    for (int i = 0; i < MAX_USERNAMES; i++)
+    {
+        account_storage[i].isFree = true;
+        account_storage[i].isLocked = time(NULL);
+
+        // Zero out all username characters
+        for (int j = 0; j < USERNAME_SIZE; j++)
+            account_storage[i].username[j] = 0;
+
+        // Zero out all password charactersy
+        for (int j = 0; j < PASSWORD_SIZE; j++)
+            account_storage[i].password[j] = 0;
+    }
+}
+
 // Input: None
 // Output: Returns user's menu selection (1-5)
-int check_task()
+// Displays the main menu and returns the selected task number
+int task_selection_menu()
 {
     int task;
     printf("[ 1 - New user    ]\n"
@@ -120,72 +145,96 @@ int check_task()
     return task;
 }
 
-// Input: user_count - index in array for new username
+// Input: index - index in account_storage for new username
 // Output: Stores validated username (6-9 chars, first uppercase, rest lowercase/digits)
-void username_creator(int user_count)
+// Reads, validates, and stores a unique username according to defined format rules
+int validate_username(user *account_storage, int index)
 {
-    printf("Enter a new username: ");
     int i;
-    
+
     // Read username character by character
     for (i = 0; i < USERNAME_SIZE - 1; i++)
     {
         char c = getchar();
         if (c == '\n')
             break;
-        array[user_count].username[i] = c;
+        account_storage[index].username[i] = c;
     }
-    array[user_count].username[i] = '\0';
+    account_storage[index].username[i] = '\0';
+
+    // Check if username exceeds maximum length
+    if (i == USERNAME_SIZE - 1)
+    {
+        char c = getchar();
+        if (c != '\n')
+        {
+            printf("The username larger than 9 characters!\n");
+            return 0;
+        }
+    }
 
     // Validate minimum length (6 characters)
     if (i < 6)
     {
-        printf("The username is too small!\n");
-        username_creator(user_count);
-        return;
+        printf("The username smaller than 6 letters!\n");
+        return 0;
     }
 
     // Validate first character is uppercase
-    if ((array[user_count].username[0] < 'A') || (array[user_count].username[0] > 'Z'))
+    if ((account_storage[index].username[0] < 'A') || (account_storage[index].username[0] > 'Z'))
     {
         printf("The first letter has to be CAPITAL!\n");
-        while (getchar() != '\n')
-            ; // Clear buffer on error
-        username_creator(user_count);
-        return;
+        return 0;
     }
 
     // Validate remaining characters are lowercase or digits
-    for (i = 1; array[user_count].username[i] != '\0' && i < USERNAME_SIZE - 1; i++)
+    for (i = 1; account_storage[index].username[i] != '\0' && i < USERNAME_SIZE - 1; i++)
     {
         char c;
-        c = array[user_count].username[i];
+        c = account_storage[index].username[i];
         if (((c < 'a') || (c > 'z')) && ((c < '0') || (c > '9')))
         {
             printf("All characters except the first have to be small or numbers!\n");
-            while (getchar() != '\n')
-                ; // Clear buffer on error
-            username_creator(user_count);
-            return;
+            return 0;
         }
     }
+
+    for (int i = 0; i < MAX_USERNAMES; i++)
+        for (int j = 0; j < USERNAME_SIZE; j++)
+        {
+            int user_name_comparison_counter = 0;
+            if (account_storage[i].isFree == false && account_storage[i].username[j] == account_storage[index].username[j])
+            {
+                user_name_comparison_counter++;
+                if (i == index)
+                    continue;
+                printf("The username already exists!\n");
+                // Clean up failed account creation
+                account_storage[index].isFree = true;
+                for (int j = 0; j < USERNAME_SIZE; j++)
+                    account_storage[index].username[j] = 0;
+                return 0;
+            }
+            if (user_name_comparison_counter == USERNAME_SIZE)
+                return 1;
+        }
 }
 
-// Input: user_count - index in array for new password
+// Input: index - index in account_storage for new password
 // Output: Returns 1 if valid (8-14 chars with uppercase, lowercase, digit), 0 otherwise
-int password_creator(int user_count)
+// Reads, validates, and stores a password meeting length and character requirements
+int validate_password(user *account_storage, int index)
 {
     int i;
-    
     // Read password character by character
     for (i = 0; i < PASSWORD_SIZE - 1; i++)
     {
         char c = getchar();
         if (c == '\n')
             break;
-        array[user_count].password[i] = c;
+        account_storage[index].password[i] = c;
     }
-    array[user_count].password[i] = '\0';
+    account_storage[index].password[i] = '\0';
 
     // Check if password exceeds maximum length
     if (i == PASSWORD_SIZE - 1)
@@ -193,12 +242,7 @@ int password_creator(int user_count)
         char c = getchar();
         if (c != '\n')
         {
-            printf("The password is too large!\n");
-            // Clear password data on failure
-            for (int j = 0; j < PASSWORD_SIZE; j++)
-                array[user_count].password[j] = 0;
-            while (getchar() != '\n')
-                ; // Clear remaining input
+            printf("The password is larger than 14 characters!!\n");
             return 0;
         }
     }
@@ -206,9 +250,7 @@ int password_creator(int user_count)
     // Validate minimum length (8 characters)
     if (i < 8)
     {
-        printf("The password is too small!\n");
-        for (int j = 0; j < PASSWORD_SIZE; j++)
-            array[user_count].password[j] = 0;
+        printf("The password is less than 8 characters!\n");
         return 0;
     }
 
@@ -216,10 +258,10 @@ int password_creator(int user_count)
     bool capital_letter = false;
     bool small_letter = false;
     bool number = false;
-    for (i = 0; array[user_count].password[i] != '\0' && i < PASSWORD_SIZE - 1; i++)
+    for (i = 0; account_storage[index].password[i] != '\0' && i < PASSWORD_SIZE - 1; i++)
     {
         char c;
-        c = array[user_count].password[i];
+        c = account_storage[index].password[i];
         if ((c >= 'A') && (c <= 'Z'))
             capital_letter = true;
         if ((c >= 'a') && (c <= 'z'))
@@ -227,63 +269,68 @@ int password_creator(int user_count)
         if ((c >= '0') && (c <= '9'))
             number = true;
     }
-    
+
     // Validate all three character types are present
     if (!(capital_letter && small_letter && number))
     {
         printf("You need at least one capital letter, one small letter and one number!\n");
-        for (int j = 0; j < PASSWORD_SIZE; j++)
-            array[user_count].password[j] = 0;
         return 0;
     }
     return 1;
 }
 
-// Input: user_count - index for new user, accounts - pointer to account counter
+// Input: index - index for new user, accounts - pointer to account counter
 // Output: Returns 1 if user created successfully with matching passwords, 0 on failure
-int user_creator(int user_count, int *accounts)
+// Creates a new user by setting username and password with confirmation and validation
+int create_user_account(user *account_storage, int index, int *accounts)
 {
     // Mark slot as occupied
-    array[user_count].isFree = false;
-    array[user_count].isLocked = false;
+    account_storage[index].isFree = false;
 
-    username_creator(user_count);
+    printf("====================================\nUSERNAME RULES: \n1. Can only consist of letters!\n2. First letter has to be capital!\n3. No other letter can be capital!\n4. Length between 6 and 9 characters! \n====================================\n");
 
-    // First password entry
-    printf("Enter a new password: ");
-    int a = password_creator(user_count);
-    if (a == 0)
+    printf("Enter a new username: ");
+    if (validate_username(account_storage, index) != 1)
     {
-        printf("Wrong input, read above, please restart!\n");
         // Reset slot on failure
-        array[user_count].isFree = true;
-        array[user_count].isLocked = false;
+        account_storage[index].isFree = true;
         for (int j = 0; j < USERNAME_SIZE; j++)
-            array[user_count].username[j] = 0;
-        for (int j = 0; j < PASSWORD_SIZE; j++)
-            array[user_count].password[j] = 0;
+            account_storage[index].username[j] = 0;
         return 0;
     }
 
-    // Password confirmation (stored in last array slot as temporary buffer)
+    printf("====================================\nPASSWORD RULES: \n1. At least 1 capital letter!\n2- At least 1 non-capital letter!\n3. At least 1 number!\n4. Length between 8 and 14 characters! \n====================================\n");
+    // First password entry
+    printf("Enter a new password: ");
+    if (validate_password(account_storage, index) != 1)
+    {
+        // Reset slot on failure
+        account_storage[index].isFree = true;
+        for (int j = 0; j < USERNAME_SIZE; j++)
+            account_storage[index].username[j] = 0;
+        for (int j = 0; j < PASSWORD_SIZE; j++)
+            account_storage[index].password[j] = 0;
+        return 0;
+    }
+
+    // Password confirmation (stored in last account_storage slot as temporary buffer)
     printf("Enter a new password again: ");
-    password_creator(MAX_USERNAMES - 1);
+    validate_password(account_storage, MAX_USERNAMES - 1);
 
     // Compare both password entries
     for (int i = 0; i < PASSWORD_SIZE; i++)
     {
-        if (array[user_count].password[i] != array[MAX_USERNAMES - 1].password[i])
+        if (account_storage[index].password[i] != account_storage[MAX_USERNAMES - 1].password[i])
         {
             printf("You entered the wrong password!\n");
             // Clean up failed account creation
-            array[user_count].isFree = true;
-            array[user_count].isLocked = false;
+            account_storage[index].isFree = true;
             for (int j = 0; j < USERNAME_SIZE; j++)
-                array[user_count].username[j] = 0;
+                account_storage[index].username[j] = 0;
             for (int j = 0; j < PASSWORD_SIZE; j++)
-                array[user_count].password[j] = 0;
+                account_storage[index].password[j] = 0;
             for (int j = 0; j < PASSWORD_SIZE; j++)
-                array[MAX_USERNAMES - 1].password[j] = 0;
+                account_storage[MAX_USERNAMES - 1].password[j] = 0;
             return 0;
         }
     }
@@ -292,13 +339,14 @@ int user_creator(int user_count, int *accounts)
 }
 
 // Input: None, prompts user for username
-// Output: Returns array index if username found, -1 if not found
-int compare_username()
+// Output: Returns account_storage index if username found, -1 if not found
+// Searches for a username in the account_storage and returns its index or -1 if not found
+int verify_username(user *account_storage)
 {
     char temp_username[USERNAME_SIZE];
     printf("Enter your username: ");
     int i;
-    
+
     // Read username input
     for (i = 0; i < USERNAME_SIZE - 1; i++)
     {
@@ -312,15 +360,15 @@ int compare_username()
     // Search through all occupied slots
     for (i = 0; i < MAX_USERNAMES; i++)
     {
-        if (array[i].isFree == false)
+        if (account_storage[i].isFree == false)
         {
             int comparison = 1;
             int j;
-            
+
             // Compare character by character
             for (j = 0; j < USERNAME_SIZE - 1; j++)
             {
-                if (array[i].username[j] != temp_username[j])
+                if (account_storage[i].username[j] != temp_username[j])
                 {
                     comparison = 0;
                     break;
@@ -336,19 +384,20 @@ int compare_username()
     return -1; // Username not found
 }
 
-// Input: index - user array position, attempts - failed login count
+// Input: index - user account_storage position, attempts - failed login count
 // Output: Returns index if password matches, -1 if failed/locked (locks after 3 attempts)
-int compare_password(int index, int attempts)
+// Verifies a user’s password with limited attempts and triggers account lock on failure
+int verify_password(user *account_storage, int index, int attempts)
 {
     // Lock account after 3 failed attempts
     if (attempts >= 3)
     {
         printf("Too many wrong tries, you are now locked for 2 minutes!\n");
-        time_locker(index);
+        account_locker(account_storage, index);
         return -1;
     }
 
-    if (array[index].isFree)
+    if (account_storage[index].isFree)
         return -1;
 
     char temp_password[PASSWORD_SIZE];
@@ -370,7 +419,7 @@ int compare_password(int index, int attempts)
     // Compare entered password with stored password
     for (i = 0; i < PASSWORD_SIZE - 1; i++)
     {
-        if (array[index].password[i] != temp_password[i])
+        if (account_storage[index].password[i] != temp_password[i])
         {
             match = 0;
             break;
@@ -383,23 +432,41 @@ int compare_password(int index, int attempts)
         return index;
 
     // Recursively retry with incremented attempt counter
-    return compare_password(index, attempts + 1);
+    return verify_password(account_storage, index, attempts + 1);
+}
+
+// Input: index - user to lock
+// Output: Locks account for LOCK_OUT_TIME seconds, returns 0
+// Locks a user account for a fixed timeout period after repeated failed logins
+int account_locker(user *account_storage, int index)
+{
+    // Calculate lockout end time
+    time_t start = time(NULL);
+    account_storage->isLocked = start + LOCK_OUT_TIME;
+    return 0;
 }
 
 // Input: accounts - pointer to account counter
 // Output: Returns 1 if user deleted successfully after authentication, 0 on failure
-int delete_user(int *accounts)
+// Authenticates and deletes an existing user, freeing the occupied slot
+int delete_user_account(user *account_storage, int *accounts)
 {
     // Verify username exists
-    int user_index = compare_username();
+    int user_index = verify_username(account_storage);
     if (user_index == -1)
     {
         printf("User not found!\n");
         return 0;
     }
 
+    if (account_storage[user_index].isLocked > time(NULL))
+    {
+        printf("User still locked for %d seconds!\n", account_storage[user_index].isLocked - time(NULL));
+        return 0;
+    }
+
     // Verify password matches
-    int pass_index = compare_password(user_index, 0);
+    int pass_index = verify_password(account_storage, user_index, 0);
 
     if (user_index != pass_index)
     {
@@ -407,14 +474,14 @@ int delete_user(int *accounts)
         return 0;
     }
 
-    printf("User |%s| is being deleted.\n", array[user_index].username);
+    printf("User |%s| is being deleted.\n", account_storage[user_index].username);
 
     // Clear user data and mark slot as free
-    array[user_index].isFree = true;
+    account_storage[user_index].isFree = true;
     for (int j = 0; j < USERNAME_SIZE; j++)
-        array[user_index].username[j] = 0;
+        account_storage[user_index].username[j] = 0;
     for (int j = 0; j < PASSWORD_SIZE; j++)
-        array[user_index].password[j] = 0;
+        account_storage[user_index].password[j] = 0;
     (*accounts)--; // Decrement account counter
     printf("The user has been deleted.\n");
     return 1;
@@ -422,19 +489,26 @@ int delete_user(int *accounts)
 
 // Input: accounts - pointer to account counter
 // Output: Returns 1 if user edited successfully after authentication, 0 on failure
-int edit_user(int *accounts)
+// Authenticates a user and allows updating their username and password
+int update_user_credentials(user *account_storage, int *accounts)
 {
     // Verify username exists
-    int username_index = compare_username();
+    int user_index = verify_username(account_storage);
 
-    if (username_index == -1)
+    if (user_index == -1)
     {
         printf("User not found!\n");
         return 0;
     }
 
+    if (account_storage[user_index].isLocked > time(NULL))
+    {
+        printf("User still locked for %d seconds!\n", account_storage[user_index].isLocked - time(NULL));
+        return 0;
+    }
+
     // Verify password matches
-    int password_index = compare_password(username_index, 0);
+    int password_index = verify_password(account_storage, user_index, 0);
 
     if (password_index == -1)
     {
@@ -443,91 +517,60 @@ int edit_user(int *accounts)
     }
 
     printf("Enter your new username and password below:\n");
-    
+
     // Preserve slot state in case of failure
-    int old_state = array[username_index].isFree;
-    
+    int old_state = account_storage[user_index].isFree;
+
     // Attempt to create new credentials
-    if (user_creator(username_index, accounts) == 0)
+    if (create_user_account(account_storage, user_index, accounts) == 0)
     {
-        array[username_index].isFree = old_state; // Restore state on failure
+        account_storage[user_index].isFree = old_state; // Restore state on failure
         return 0;
     }
-    
+
     return 1;
-}
-
-// Input: a - current account count
-// Output: Prints list of registered usernames, returns 0
-int print_values(int a)
-{
-    printf("------------------------------------\n");
-    if (a == 0)
-        return 0;
-    printf("These are the registered users: \n");
-    
-    // Display all active users
-    for (int i = 0; i < MAX_USERNAMES; i++)
-        if (array[i].isFree == false)
-            printf("User %d: %s\n", i + 1, array[i].username);
-    printf("------------------------------------\n");
-}
-
-// Input: None
-// Output: Initializes all user slots to empty state with cleared data
-void empty_array()
-{
-    for (int i = 0; i < MAX_USERNAMES; i++)
-    {
-        array[i].isFree = true;
-        array[i].isLocked = false;
-        
-        // Zero out all username characters
-        for (int j = 0; j < USERNAME_SIZE; j++)
-            array[i].username[j] = 0;
-            
-        // Zero out all password characters
-        for (int j = 0; j < PASSWORD_SIZE; j++)
-            array[i].password[j] = 0;
-    }
-}
-
-// Input: index - user to lock
-// Output: Locks account for LOCK_OUT_TIME seconds, returns 0
-int time_locker(int index)
-{
-    array[index].isLocked = true;
-
-    // Calculate lockout end time
-    time_t start = time(NULL);
-    time_t end = start + LOCK_OUT_TIME;
-    
-    // Busy wait until lockout expires
-    while (time(NULL) < end)
-    {
-    }
-
-    array[index].isLocked = false;
-    printf("Timer complete\n");
-    return 0;
 }
 
 // Input: None, prompts for username and password
 // Output: Returns 0, prints login success or failure message
-int login()
+// Authenticates a user and reports login success or failure
+int authenticate_user(user *account_storage)
 {
     // Verify username exists
-    int a = compare_username();
-    if (a == -1)
+    int user_index = verify_username(account_storage);
+    if (user_index == -1)
     {
         printf("User not found!\n");
         return 0;
     }
-    
+
+    if (account_storage[user_index].isLocked > time(NULL))
+    {
+        printf("User still locked for %d seconds!\n", account_storage[user_index].isLocked - time(NULL));
+        return 0;
+    }
+
     // Verify password matches
-    int b = compare_password(a, 0);
-    if (a == b)
+    int password_index = verify_password(account_storage, user_index, 0);
+    if (user_index == password_index)
         printf("Successfully logged in!\n");
     else
         printf("The account does not exist!\n");
+}
+
+// Input: a - current account count
+// Output: Prints list of registered usernames, returns 0
+// Prints all currently registered usernames and their indices
+int display_registered_users(user *account_storage, int accounts)
+{
+    printf("------------------------------------\n");
+    if (accounts == 0)
+        return 0;
+    printf("These are the registered users: \n");
+
+    // Display all active users
+    for (int i = 0; i < MAX_USERNAMES; i++)
+        if (account_storage[i].isFree == false)
+            printf("User %d: %s\n", i + 1, account_storage[i].username);
+    printf("------------------------------------\n");
 }
