@@ -200,24 +200,31 @@ int validate_username(user *account_storage, int index)
     }
 
     for (int i = 0; i < MAX_USERNAMES; i++)
+    {
+        int user_name_comparison_counter = 0;
         for (int j = 0; j < USERNAME_SIZE; j++)
         {
-            int user_name_comparison_counter = 0;
-            if (account_storage[i].isFree == false && account_storage[i].username[j] == account_storage[index].username[j])
+
+            if (account_storage[i].isFree == true)
+                break;
+            if (account_storage[i].username[j] == account_storage[index].username[j])
             {
                 user_name_comparison_counter++;
                 if (i == index)
                     continue;
-                printf("The username already exists!\n");
+            }
+            if (user_name_comparison_counter == USERNAME_SIZE)
+            {
                 // Clean up failed account creation
                 account_storage[index].isFree = true;
                 for (int j = 0; j < USERNAME_SIZE; j++)
                     account_storage[index].username[j] = 0;
+                printf("The username already exists!\n");
                 return 0;
             }
-            if (user_name_comparison_counter == USERNAME_SIZE)
-                return 1;
         }
+    }
+    return 1;
 }
 
 // Input: index - index in account_storage for new password
@@ -442,7 +449,7 @@ int account_locker(user *account_storage, int index)
 {
     // Calculate lockout end time
     time_t start = time(NULL);
-    account_storage->isLocked = start + LOCK_OUT_TIME;
+    account_storage[index].isLocked = start + LOCK_OUT_TIME;
     return 0;
 }
 
