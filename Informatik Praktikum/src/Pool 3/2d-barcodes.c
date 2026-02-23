@@ -69,7 +69,8 @@ int main(void)
         if (write_barcode(barcode, size, filename) != 0)
             return 0;
 
-        printf("2D-Barcode in file: %s\n", filename);
+        if (write_barcode(barcode, size, filename) != 0)
+            return 0;
     }
     else if (choice == 2)
     {
@@ -118,7 +119,7 @@ int encode(const char *input, unsigned char barcode[], int *size)
     // Flush remaining newline from previous input
     while (getchar() != '\n')
         ;
-    
+
     // Calculate actual string length up to MAX_LENGTH
     int len = 0;
     while (len < MAX_LENGTH && input[len] != '\0')
@@ -155,18 +156,18 @@ int encode(const char *input, unsigned char barcode[], int *size)
 
     // Add 2-byte terminator (0x0000)
     sprintf((char *)&temp_buffer[buf_pos], "%c%c", 0x00, 0x00);
-    buf_pos += 2;   
+    buf_pos += 2;
 
     // Calculate checksum: sum all nibbles (4-bit halves) of length and data bytes, keep lower 16 bits
     unsigned int hex_sum = 0;
-    hex_sum += (len >> 4) & 0x0F;  // High nibble of length
-    hex_sum += len & 0x0F;          // Low nibble of length
+    hex_sum += (len >> 4) & 0x0F; // High nibble of length
+    hex_sum += len & 0x0F;        // Low nibble of length
 
     for (int i = 0; i < len; i++)
     {
         unsigned char ch = (unsigned char)input[i];
-        hex_sum += (ch >> 4) & 0x0F;  // High nibble
-        hex_sum += ch & 0x0F;          // Low nibble
+        hex_sum += (ch >> 4) & 0x0F; // High nibble
+        hex_sum += ch & 0x0F;        // Low nibble
     }
 
     // Store checksum as 2 bytes (16 bits)
@@ -190,7 +191,7 @@ int encode(const char *input, unsigned char barcode[], int *size)
         printf("Error: Barcode too large!\n");
         return 1;
     }
- 
+
     // Calculate total capacity and pad with alternating 0xEC, 0x11 bytes (common QR padding pattern)
     int total_bits = (*size) * (*size);
     int total_nibbles = (total_bits + 3) / 4;
@@ -202,7 +203,7 @@ int encode(const char *input, unsigned char barcode[], int *size)
     {
         sprintf((char *)&temp_buffer[buf_pos], "%c", fill[fill_idx]);
         buf_pos++;
-        fill_idx ^= 1;  // Alternate between 0xEC and 0x11
+        fill_idx ^= 1; // Alternate between 0xEC and 0x11
     }
 
     // Handle odd nibble count by removing last byte if it extends beyond needed nibbles
@@ -222,9 +223,9 @@ int encode(const char *input, unsigned char barcode[], int *size)
     for (int i = 0; i < buf_pos; i++)
     {
         if (nib_idx < total_nibbles)
-            nibble_stream[nib_idx++] = (temp_buffer[i] >> 4) & 0x0F;  // High nibble
+            nibble_stream[nib_idx++] = (temp_buffer[i] >> 4) & 0x0F; // High nibble
         if (nib_idx < total_nibbles)
-            nibble_stream[nib_idx++] = temp_buffer[i] & 0x0F;         // Low nibble
+            nibble_stream[nib_idx++] = temp_buffer[i] & 0x0F; // Low nibble
     }
 
     // Map nibble bits to barcode grid: each row reads right-to-left, rows proceed top-to-bottom
@@ -233,11 +234,11 @@ int encode(const char *input, unsigned char barcode[], int *size)
     {
         for (int col = 0; col < *size; col++)
         {
-            int bit_in_stream = row * (*size) + ((*size - 1) - col);  // Right-to-left mapping
+            int bit_in_stream = row * (*size) + ((*size - 1) - col); // Right-to-left mapping
 
             // Extract bit from nibble stream (nibbles store 4 bits each, MSB first within nibble)
             int nibble_idx = bit_in_stream / 4;
-            int bit_in_nibble = 3 - (bit_in_stream % 4);  // Bit 0 is MSB, bit 3 is LSB
+            int bit_in_nibble = 3 - (bit_in_stream % 4); // Bit 0 is MSB, bit 3 is LSB
             int bit_value = (nibble_stream[nibble_idx] >> bit_in_nibble) & 1;
 
             // Store bit in output barcode array (row-major, left-to-right storage)
@@ -249,7 +250,6 @@ int encode(const char *input, unsigned char barcode[], int *size)
 
     return 0;
 }
-
 
 // INPUT: Byte array containing barcode bits, dimension of square, output filename
 // OUTPUT: 0 on success, 1 on file error; writes barcode as ASCII '0'/'1' grid to file
@@ -265,8 +265,8 @@ int write_barcode(const unsigned char barcode[], int size, const char *filename)
     {
         for (int c = 0; c < size; c++)
         {
-            int bit = r * size + c;  // Row-major linear index
-            int val = (barcode[bit / 8] >> (7 - bit % 8)) & 1;  // Extract bit from byte
+            int bit = r * size + c;                            // Row-major linear index
+            int val = (barcode[bit / 8] >> (7 - bit % 8)) & 1; // Extract bit from byte
             fprintf(f, "%d", val);
         }
         fprintf(f, "\n");
@@ -296,7 +296,7 @@ int read_barcode(unsigned char barcode[], int *size, const char *filename)
             len++;
         if (rows == 0)
             cols = len;
-        else if (len != cols)  // All rows must have same length
+        else if (len != cols) // All rows must have same length
         {
             fclose(f);
             return 1;
@@ -324,15 +324,15 @@ int read_barcode(unsigned char barcode[], int *size, const char *filename)
         for (int c = 0; c < cols; c++)
         {
             char ch = line[c];
-            if (ch != '0' && ch != '1')  // Validate character is binary digit
+            if (ch != '0' && ch != '1') // Validate character is binary digit
             {
                 fclose(f);
                 return 1;
             }
             if (ch == '1')
             {
-                int bit = r * cols + c;  // Row-major linear index
-                barcode[bit / 8] |= 1 << (7 - bit % 8);  // Set bit in byte
+                int bit = r * cols + c;                 // Row-major linear index
+                barcode[bit / 8] |= 1 << (7 - bit % 8); // Set bit in byte
             }
         }
     }
@@ -359,12 +359,12 @@ int decode(const unsigned char barcode[], int size, char *output, int *error)
     {
         for (int col = 0; col < size; col++)
         {
-            int bit_in_stream = row * size + ((size - 1) - col);  // Reverse right-to-left mapping
+            int bit_in_stream = row * size + ((size - 1) - col); // Reverse right-to-left mapping
 
             int nibble_idx = bit_in_stream / 4;
             int bit_in_nibble = 3 - (bit_in_stream % 4);
 
-            int bit_index = row * size + col;  // Row-major storage index
+            int bit_index = row * size + col; // Row-major storage index
             int bit_value = (barcode[bit_index / 8] >> (7 - (bit_index % 8))) & 1;
 
             if (bit_value)
@@ -401,7 +401,7 @@ int decode(const unsigned char barcode[], int size, char *output, int *error)
     if (nibble_stream[nib_idx] != 0 || nibble_stream[nib_idx + 1] != 0 ||
         nibble_stream[nib_idx + 2] != 0 || nibble_stream[nib_idx + 3] != 0)
     {
-        *error = 1;  // Terminator mismatch indicates corruption
+        *error = 1; // Terminator mismatch indicates corruption
     }
     nib_idx += 4;
 
@@ -425,7 +425,7 @@ int decode(const unsigned char barcode[], int size, char *output, int *error)
     nib_idx += 4;
 
     if ((hex_sum & 0xFFFF) != stored_checksum)
-        *error = 1;  // Checksum mismatch indicates corruption
+        *error = 1; // Checksum mismatch indicates corruption
 
     // Verify remaining padding nibbles match expected 0xEC, 0x11 pattern
     unsigned char fill[] = {0xEC, 0x11};
@@ -435,18 +435,17 @@ int decode(const unsigned char barcode[], int size, char *output, int *error)
     {
         unsigned char expected_nibble;
         if (nib_idx % 2 == 0)
-            expected_nibble = (fill[fill_idx] >> 4) & 0x0F;  // High nibble of fill byte
+            expected_nibble = (fill[fill_idx] >> 4) & 0x0F; // High nibble of fill byte
         else
         {
-            expected_nibble = fill[fill_idx] & 0x0F;  // Low nibble of fill byte
-            fill_idx ^= 1;  // Alternate between 0xEC and 0x11
+            expected_nibble = fill[fill_idx] & 0x0F; // Low nibble of fill byte
+            fill_idx ^= 1;                           // Alternate between 0xEC and 0x11
         }
 
         if (nibble_stream[nib_idx] != expected_nibble)
-            *error = 1;  // Padding mismatch indicates corruption
+            *error = 1; // Padding mismatch indicates corruption
 
         nib_idx++;
     }
-
     return 0;
 }
