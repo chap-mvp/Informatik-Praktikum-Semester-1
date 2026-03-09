@@ -1,17 +1,17 @@
 /*
  Filename  : 2d-barcodes.c
- Program   : User account management system with creation, deletion, editing, and login authentication
+ Program   : 2D barcode encoder and decoder for ASCII strings
  Input     : None
  Output    : Return value of main() is always 0
  Author    : Akram, M. Issmaeel
- Version   : V02 - 03.02.2026
+ Version   : V03 - 09.03.2026
  */
 
 #include <stdio.h>
 #include <string.h>
 
 #define MAX_LENGTH 255
-#define MAX_BARCODE_SIZE 128
+#define MAX_BARCODE_SIZE 46 // 128
 #define MAX_BARCODE_BITS (MAX_BARCODE_SIZE * MAX_BARCODE_SIZE)
 #define MAX_BARCODE_BYTES (MAX_BARCODE_BITS / 8)
 
@@ -22,11 +22,11 @@ int decode(const unsigned char barcode[], int size, char *output, int *error);
 
 int main(void)
 {
-    int choice;
-    char filename[256];
+    int choice = 0;
+    char filename[256] = {'\0'};
 
-    unsigned char barcode[MAX_BARCODE_BYTES]; /* raw bit-packed barcode data */
-    int size;                                 /* side length of the square grid */
+    unsigned char barcode[MAX_BARCODE_BYTES] = {'\0'}; /* raw bit-packed barcode data */
+    int size = 0;                                      /* side length of the square grid */
 
     printf("1 - Encode\n2 - Decode\nWahl: ");
     scanf("%d", &choice);
@@ -35,8 +35,8 @@ int main(void)
 
     if (choice == 1)
     {
-        char input[MAX_LENGTH + 1];
-        int i;
+        char input[MAX_LENGTH + 1] = {'\0'};
+        int i = 0;
 
         printf("Input: ");
         for (i = 0; i < MAX_LENGTH; i++)
@@ -66,9 +66,9 @@ int main(void)
     }
     else if (choice == 2)
     {
-        int i;
-        char output[MAX_LENGTH + 1];
-        int error;
+        int i = 0;
+        char output[MAX_LENGTH + 1] = {'\0'};
+        int error = 0;
 
         printf("Filename: ");
         for (i = 0; i < 255; i++)
@@ -88,11 +88,8 @@ int main(void)
         if (decode_result == 0)
         {
             printf("Decoded string: %s\n", output);
-            /* NOTE: error flag branches are swapped — logic is inverted here */
             if (error)
                 printf("The String might contain errors\n");
-            else
-                printf("Error: Invalid barcode format\n");
         }
         else
         {
@@ -128,7 +125,7 @@ int encode(const char *input, unsigned char barcode[], int *size)
         return 1;
     }
 
-    unsigned char temp_buffer[1024]; /* staging buffer before bit-packing */
+    unsigned char temp_buffer[1024] = {'\0'}; /* staging buffer before bit-packing */
     int buf_pos = 0;
 
     /* write length byte */
@@ -173,7 +170,7 @@ int encode(const char *input, unsigned char barcode[], int *size)
 
     *size = side;
 
-    if (*size > MAX_BARCODE_SIZE)
+    if (*size > MAX_BARCODE_SIZE) // ? 16384
     {
         printf("Error: Barcode too large!\n");
         return 1;
@@ -203,7 +200,7 @@ int encode(const char *input, unsigned char barcode[], int *size)
     memset(barcode, 0, total_bytes);
 
     /* extract nibble stream from temp_buffer, high nibble first */
-    unsigned char nibble_stream[MAX_BARCODE_BITS / 4];
+    unsigned char nibble_stream[MAX_BARCODE_BITS / 4] = {'\0'};
     int nibble_index = 0;
 
     for (int i = 0; i < buf_pos; i++)
@@ -334,7 +331,7 @@ int decode(const unsigned char barcode[], int size, char *output, int *error)
     int total_bits = size * size;
     int total_nibbles = (total_bits + 3) / 4;
 
-    unsigned char nibble_stream[MAX_BARCODE_BITS / 4];
+    unsigned char nibble_stream[MAX_BARCODE_BITS / 4] = {'\0'};
     memset(nibble_stream, 0, sizeof(nibble_stream));
 
     /* reconstruct nibble stream using same column-reversal as encode */
@@ -367,7 +364,8 @@ int decode(const unsigned char barcode[], int size, char *output, int *error)
 
     /* bounds check: len chars (2 nibbles each) + 4 terminator nibbles + 4 checksum nibbles */
     if (nibble_index + (len * 2) + 4 + 4 > total_nibbles)
-        return 1;
+        // return 1;
+        printf("Length Nibble Wrong!\n");
 
     /* read character bytes */
     for (int i = 0; i < len; i++)
@@ -384,6 +382,7 @@ int decode(const unsigned char barcode[], int size, char *output, int *error)
         nibble_stream[nibble_index + 2] != 0 ||
         nibble_stream[nibble_index + 3] != 0)
     {
+        printf("Wrong Null Terminator!\n");
         *error = 1;
     }
     nibble_index += 4;
@@ -408,26 +407,39 @@ int decode(const unsigned char barcode[], int size, char *output, int *error)
     nibble_index += 4;
 
     if ((hex_sum & 0xFFFF) != stored_checksum)
+    {
+        printf("Checksum Wrong!\n");
         *error = 1;
-
+    }
     /* verify padding: alternating 0xEC / 0x11, nibble by nibble */
     unsigned char fill[] = {0xEC, 0x11};
     int fill_index = 0;
 
-    while (nibble_index < total_nibbles)
+    for (int i = 0; i < len; i++)
+        printf("[%d] ", nibble_stream[i]);
+    printf("\n");
+
+    while (nibble_index + 1 < total_nibbles)
     {
-        unsigned char expected_nibble;
+        unsigned char expected_nibble = 0;
+
         if (nibble_index % 2 == 0)
+        {
             expected_nibble = (fill[fill_index] >> 4) & 0x0F;
+        }
         else
         {
             expected_nibble = fill[fill_index] & 0x0F;
             fill_index ^= 1;
         }
 
-        if (nibble_stream[nibble_index] != expected_nibble)
-            *error = 1;
+        printf("[%d], [%d]\n ", nibble_stream[nibble_index], fill[fill_index]);
 
+        if (nibble_stream[nibble_index] != expected_nibble)
+        {
+            printf("Wrong Fill Byte!\n");
+            *error = 1;
+        }
         nibble_index++;
     }
     return 0;
